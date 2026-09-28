@@ -148,6 +148,27 @@
                                 </form>
                             </div>
                         </t>
+                        <t t-elif="progress and progress['code'] == 'processing'">
+                            <p>Your mock interview is already completed.</p>
+                            <p class="text-muted">
+                                Your request for a re-attempt is <strong>Processing</strong> —
+                                our placement team is reviewing it and will notify you
+                                once it's approved.
+                            </p>
+                        </t>
+                        <t t-elif="progress and progress['code'] == 'date_not_scheduled'">
+                            <p>Good news — your re-attempt request has been approved.</p>
+                            <p class="text-muted">Status: <strong>Date Not Scheduled</strong>. Pick a new slot to finish booking.</p>
+                            <a href="/placement/book-interview" class="btn otm-btn-primary">Book Your Mock Interview</a>
+                        </t>
+                        <t t-elif="progress and progress['code'] == 'completed'">
+                            <p>Your mock interview is completed.</p>
+                            <p class="text-muted">Want to try again? Request permission for a re-attempt and our placement team will review it.</p>
+                            <form action="/my-placement/interview/request-reattempt" method="post" class="d-inline">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <button type="submit" class="btn otm-btn-primary">Request Re-attempt</button>
+                            </form>
+                        </t>
                         <t t-else="">
                             <p>You have no upcoming mock interview scheduled.</p>
                             <a href="/placement/book-interview" class="btn otm-btn-primary">Book Your Mock Interview</a>

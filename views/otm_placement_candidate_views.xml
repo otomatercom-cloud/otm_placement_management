@@ -76,6 +76,7 @@
                         <page string="Interview" name="page_interview">
                             <group>
                                 <field name="interview_preference"/>
+                                <field name="interview_progress_status" readonly="1"/>
                             </group>
                             <field name="mock_interview_ids" context="{'default_candidate_id': id}">
                                 <list>

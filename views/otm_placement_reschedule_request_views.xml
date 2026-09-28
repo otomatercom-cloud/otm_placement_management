@@ -22,7 +22,7 @@
                         </group>
                         <group>
                             <field name="current_slot_id" readonly="1"/>
-                            <field name="new_slot_id" invisible="request_type != 'reschedule'"/>
+                            <field name="new_slot_id" invisible="request_type == 'cancel'"/>
                         </group>
                     </group>
                     <group>

@@ -267,6 +267,30 @@
                         </div>
                     </div>
 
+                    <!-- STEP 2b: re-attempt request is under review -->
+                    <div class="otm-step d-none" data-step="processing">
+                        <div class="otm-success">
+                            <div class="otm-success-icon">⏳</div>
+                            <h2>Your Re-attempt Request is Processing</h2>
+                            <p>Hi <span id="otm_bi_processing_name"/>, your mock interview is completed and your
+                               request for a re-attempt is with our placement team for review. We'll notify you
+                               once it's approved.</p>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2c: completed, offer to request a re-attempt -->
+                    <div class="otm-step d-none" data-step="completed">
+                        <div class="otm-success">
+                            <div class="otm-success-icon">✅</div>
+                            <h2>Your Mock Interview is Completed</h2>
+                            <p>Hi <span id="otm_bi_completed_name"/>, want to try again? Request permission for a
+                               re-attempt and our placement team will review it.</p>
+                            <button type="button" class="btn otm-btn-primary mt-2" id="otm_bi_btn_request_reattempt">
+                                Request Re-attempt
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- STEP 3: mode -->
                     <div class="otm-step d-none" data-step="mode">
                         <h2 class="otm-step-title">How would you prefer your mock interview?</h2>

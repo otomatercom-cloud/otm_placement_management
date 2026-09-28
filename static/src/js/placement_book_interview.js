@@ -82,11 +82,19 @@
             }
             state.candidateId = data.candidate_id;
             state.token = data.token;
-            if (data.already_booked) {
+            if (data.status === "scheduled") {
                 document.getElementById("otm_bi_already_name").textContent = data.name;
                 document.getElementById("otm_bi_view_existing").href = data.success_url;
                 goToStep("already");
+            } else if (data.status === "processing") {
+                document.getElementById("otm_bi_processing_name").textContent = data.name;
+                goToStep("processing");
+            } else if (data.status === "completed") {
+                document.getElementById("otm_bi_completed_name").textContent = data.name;
+                goToStep("completed");
             } else {
+                // "date_not_scheduled" (re-attempt approved) or "not_booked"
+                // (fresh candidate) both proceed straight to slot booking.
                 goToStep("mode");
             }
         }).catch(function () {
@@ -94,6 +102,29 @@
             showAlert("Something went wrong. Please try again.");
         });
     });
+
+    // --- STEP 1b: request re-attempt permission -------------------------
+    var reattemptBtn = document.getElementById("otm_bi_btn_request_reattempt");
+    if (reattemptBtn) {
+        reattemptBtn.addEventListener("click", function () {
+            setButtonLoading(reattemptBtn, true, "Request Re-attempt");
+            postJSON("/placement/book-interview/request-reattempt", {
+                csrf_token: csrfToken, candidate_id: state.candidateId, token: state.token,
+            }).then(function (data) {
+                setButtonLoading(reattemptBtn, false, "Request Re-attempt");
+                if (!data.ok) {
+                    showAlert(data.error || "Something went wrong. Please try again.");
+                    return;
+                }
+                document.getElementById("otm_bi_processing_name").textContent =
+                    document.getElementById("otm_bi_completed_name").textContent;
+                goToStep("processing");
+            }).catch(function () {
+                setButtonLoading(reattemptBtn, false, "Request Re-attempt");
+                showAlert("Something went wrong. Please try again.");
+            });
+        });
+    }
 
     // --- STEP 2: mode ---------------------------------------------------
     $all(".otm-mode-card").forEach(function (card) {

@@ -294,9 +294,7 @@ class OtmPlacementMainController(http.Controller):
                          "and email. Please check for typos, or register first.",
             }, 404)
 
-        active_interview = candidate.mock_interview_ids.filtered(
-            lambda i: i.status not in ("cancelled",)
-        )[:1]
+        progress = candidate._get_mock_interview_display_status()
 
         return _json_response({
             "ok": True,
@@ -304,6 +302,45 @@ class OtmPlacementMainController(http.Controller):
             "token": candidate.access_token,
             "name": candidate.name,
             "program": candidate.program_id.name,
-            "already_booked": bool(active_interview),
+            "already_booked": progress["code"] == "scheduled",
+            "status": progress["code"],
+            "status_label": progress["label"],
             "success_url": "/placement/booking/success/%s" % candidate.access_token,
         })
+
+    # ------------------------------------------------------------------
+    # Request permission for a mock-interview re-attempt (public, token-
+    # verified - the candidate is not portal-logged-in on this flow).
+    # ------------------------------------------------------------------
+    @http.route("/placement/book-interview/request-reattempt", type="http",
+                methods=["POST"], auth="public", website=True, csrf=False)
+    def placement_book_interview_request_reattempt(self, **kwargs):
+        try:
+            data = json.loads(request.httprequest.get_data())
+        except ValueError:
+            return _json_response({"ok": False, "error": "Invalid request."}, 400)
+
+        request.validate_csrf(data.get("csrf_token"))
+
+        candidate_id = _to_int(data.get("candidate_id"))
+        token = data.get("token")
+        candidate = request.env["otm.placement.candidate"].sudo().browse(candidate_id)
+        if not candidate.exists() or not token or candidate.access_token != token:
+            return _json_response({"ok": False, "error": "Invalid session."}, 403)
+
+        last_completed = candidate.mock_interview_ids.filtered(
+            lambda i: i.status == "completed"
+        ).sorted("scheduled_start", reverse=True)[:1]
+        already_pending = bool(
+            candidate._get_requested_reattempt()
+            or candidate._get_pending_reattempt_approval()
+        )
+        if last_completed and not already_pending:
+            request.env["otm.placement.reschedule.request"].sudo().create({
+                "interview_id": last_completed.id,
+                "request_type": "reattempt",
+                "reason": (data.get("reason") or "").strip(),
+            })
+            request.env.cr.commit()
+
+        return _json_response({"ok": True})

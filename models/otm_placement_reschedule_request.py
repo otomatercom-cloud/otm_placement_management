@@ -17,7 +17,11 @@ class OtmPlacementRescheduleRequest(models.Model):
         related="interview_id.candidate_id", store=True,
     )
     request_type = fields.Selection(
-        [("cancel", "Cancel"), ("reschedule", "Reschedule")],
+        [
+            ("cancel", "Cancel"),
+            ("reschedule", "Reschedule"),
+            ("reattempt", "Mock Interview Re-attempt"),
+        ],
         required=True,
         default="reschedule",
     )
@@ -26,7 +30,10 @@ class OtmPlacementRescheduleRequest(models.Model):
         related="interview_id.slot_id", store=True,
     )
     new_slot_id = fields.Many2one(
-        "otm.placement.interview.slot", string="New Requested Slot"
+        "otm.placement.interview.slot", string="New Requested Slot",
+        help="Reschedule: the slot to move to. Re-attempt: leave blank to "
+             "just grant the candidate permission to pick their own new slot, "
+             "or set a slot here to book it directly on approval.",
     )
     reason = fields.Text()
     status = fields.Selection(
@@ -44,16 +51,32 @@ class OtmPlacementRescheduleRequest(models.Model):
             interview = request.interview_id
             if request.request_type == "cancel":
                 interview.action_cancel()
-            else:
+                request.status = "approved"
+            elif request.request_type == "reschedule":
                 if not request.new_slot_id:
                     raise UserError(_("Please select a new slot before approving."))
                 self.env["otm.placement.mock.interview"].sudo().book_slot(
-                    interview.candidate_id, request.new_slot_id
+                    interview.candidate_id, request.new_slot_id,
+                    bypass_active_check=True,
                 )
                 interview.action_cancel()
                 interview.status = "rescheduled"
                 interview._send_notification("interview_rescheduled_mail_template")
-            request.status = "approved"
+                request.status = "approved"
+            else:  # reattempt
+                if request.new_slot_id:
+                    # Manager picked the new slot directly: book it now and
+                    # close the request out in one step.
+                    self.env["otm.placement.mock.interview"].sudo().book_slot(
+                        interview.candidate_id, request.new_slot_id,
+                        bypass_active_check=True,
+                    )
+                    request.status = "completed"
+                else:
+                    # Grant permission only: the candidate comes back and
+                    # picks their own slot, which book_slot() allows once it
+                    # finds this approved, still-unconsumed request.
+                    request.status = "approved"
 
     def action_reject(self):
         self.write({"status": "rejected"})

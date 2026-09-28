@@ -4,7 +4,8 @@ import threading
 import uuid
 from datetime import date
 
-from odoo import SUPERUSER_ID, api, fields, models
+from odoo import SUPERUSER_ID, _, api, fields, models
+from odoo.exceptions import UserError
 from odoo.modules.registry import Registry
 
 _logger = logging.getLogger(__name__)
@@ -128,6 +129,15 @@ class OtmPlacementCandidate(models.Model):
     placement_record_count = fields.Integer(
         string="Placements", compute="_compute_placement_record_count"
     )
+    interview_progress_status = fields.Char(
+        string="Interview Progress",
+        compute="_compute_interview_progress_status",
+        help="One-line status of where this candidate stands on mock "
+             "interview booking: Scheduled / Processing (re-attempt request "
+             "awaiting placement manager review) / Date Not Scheduled "
+             "(re-attempt approved, candidate hasn't picked a slot yet) / "
+             "Completed / Not Booked Yet.",
+    )
 
     _phone_uniq = models.Constraint(
         "unique(phone, email)",
@@ -147,6 +157,92 @@ class OtmPlacementCandidate(models.Model):
     def _compute_placement_record_count(self):
         for candidate in self:
             candidate.placement_record_count = len(candidate.placement_record_ids)
+
+    @api.depends("mock_interview_ids.status")
+    def _compute_interview_progress_status(self):
+        for candidate in self:
+            candidate.interview_progress_status = (
+                candidate._get_mock_interview_display_status()["label"]
+            )
+
+    # --- One-active-interview / re-attempt-approval rules -----------------
+    # A candidate may only have one active (scheduled/confirmed) mock
+    # interview at a time - to change its date they must request a
+    # reschedule (see otm.placement.reschedule.request), not book a second
+    # one. Once that interview is completed, booking another one is not
+    # self-service: it requires an explicit placement-manager approval
+    # (a "reattempt" reschedule.request), so a fresh candidate's slots
+    # aren't crowded out by repeat attempts.
+
+    def _get_pending_reattempt_approval(self):
+        """The candidate's approved-but-not-yet-used permission to book a
+        new mock interview after completing a previous one, if any."""
+        self.ensure_one()
+        return self.env["otm.placement.reschedule.request"].sudo().search([
+            ("candidate_id", "=", self.id),
+            ("request_type", "=", "reattempt"),
+            ("status", "=", "approved"),
+            ("new_slot_id", "=", False),
+        ], limit=1, order="id desc")
+
+    def _get_requested_reattempt(self):
+        """A reattempt request still awaiting placement-manager review."""
+        self.ensure_one()
+        return self.env["otm.placement.reschedule.request"].sudo().search([
+            ("candidate_id", "=", self.id),
+            ("request_type", "=", "reattempt"),
+            ("status", "=", "requested"),
+        ], limit=1, order="id desc")
+
+    def _check_can_self_book(self):
+        """Raise UserError if this candidate isn't currently allowed to
+        self-book a new mock interview slot. Called from book_slot() for
+        every self-service booking (public page, portal); never bypassed
+        for those paths."""
+        self.ensure_one()
+        active = self.mock_interview_ids.filtered(
+            lambda i: i.status in ("scheduled", "confirmed")
+        )
+        if active:
+            local_start = fields.Datetime.context_timestamp(
+                self, active[0].scheduled_start
+            )
+            raise UserError(_(
+                "You already have a mock interview scheduled on %s. To "
+                "change the date, request a reschedule instead of booking "
+                "a new one."
+            ) % local_start.strftime("%d %b %Y, %I:%M %p"))
+        finished = self.mock_interview_ids.filtered(
+            lambda i: i.status == "completed"
+        )
+        if finished and not self._get_pending_reattempt_approval():
+            raise UserError(_(
+                "Your mock interview is already completed. Please request "
+                "permission for a re-attempt - our placement team will "
+                "review it and notify you once it's approved."
+            ))
+
+    def _get_mock_interview_display_status(self):
+        """A single {code, label} describing where this candidate stands,
+        for the portal and the public booking page. `code` is one of:
+        scheduled / processing / date_not_scheduled / completed / not_booked.
+        """
+        self.ensure_one()
+        active = self.mock_interview_ids.filtered(
+            lambda i: i.status in ("scheduled", "confirmed")
+        )
+        if active:
+            return {"code": "scheduled", "label": _("Scheduled")}
+        if self._get_requested_reattempt():
+            return {"code": "processing", "label": _("Processing")}
+        if self._get_pending_reattempt_approval():
+            return {"code": "date_not_scheduled", "label": _("Date Not Scheduled")}
+        finished = self.mock_interview_ids.filtered(
+            lambda i: i.status == "completed"
+        )
+        if finished:
+            return {"code": "completed", "label": _("Completed")}
+        return {"code": "not_booked", "label": _("Not Booked Yet")}
 
     @api.model
     def _read_group_stage_ids(self, stages, domain):

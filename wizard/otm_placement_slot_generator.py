@@ -24,9 +24,13 @@ class OtmPlacementSlotGenerator(models.TransientModel):
         string="To Date", required=True,
         default=lambda self: fields.Date.context_today(self) + timedelta(days=6),
     )
-    skip_weekends = fields.Boolean(
-        string="Skip Saturdays & Sundays", default=False
-    )
+    weekday_mon = fields.Boolean(string="Mon", default=True)
+    weekday_tue = fields.Boolean(string="Tue", default=True)
+    weekday_wed = fields.Boolean(string="Wed", default=True)
+    weekday_thu = fields.Boolean(string="Thu", default=True)
+    weekday_fri = fields.Boolean(string="Fri", default=True)
+    weekday_sat = fields.Boolean(string="Sat", default=True)
+    weekday_sun = fields.Boolean(string="Sun", default=True)
 
     day_start_time = fields.Float(
         string="Start Time", required=True, default=10.0,
@@ -68,8 +72,10 @@ class OtmPlacementSlotGenerator(models.TransientModel):
     preview = fields.Char(string="Preview", compute="_compute_preview")
 
     @api.depends(
-        "date_from", "date_to", "skip_weekends", "slots_per_day",
+        "date_from", "date_to", "slots_per_day",
         "slot_duration", "gap_minutes", "day_start_time",
+        "weekday_mon", "weekday_tue", "weekday_wed", "weekday_thu",
+        "weekday_fri", "weekday_sat", "weekday_sun",
     )
     def _compute_preview(self):
         for wiz in self:
@@ -77,6 +83,9 @@ class OtmPlacementSlotGenerator(models.TransientModel):
                 wiz.preview = ""
                 continue
             days = wiz._working_days()
+            if not days:
+                wiz.preview = _("No days match the selected weekdays in this date range.")
+                continue
             total = len(days) * wiz.slots_per_day
             last_start_minutes = (
                 wiz.day_start_time * 60
@@ -92,12 +101,26 @@ class OtmPlacementSlotGenerator(models.TransientModel):
                 "end": "%02d:%02d" % (int(last_end_minutes // 60) % 24, int(last_end_minutes % 60)),
             }
 
+    def _selected_weekdays(self):
+        """Python's date.weekday(): Monday=0 ... Sunday=6."""
+        self.ensure_one()
+        return {
+            0: self.weekday_mon,
+            1: self.weekday_tue,
+            2: self.weekday_wed,
+            3: self.weekday_thu,
+            4: self.weekday_fri,
+            5: self.weekday_sat,
+            6: self.weekday_sun,
+        }
+
     def _working_days(self):
         self.ensure_one()
+        allowed = self._selected_weekdays()
         days = []
         current = self.date_from
         while current <= self.date_to:
-            if not (self.skip_weekends and current.weekday() >= 5):
+            if allowed.get(current.weekday()):
                 days.append(current)
             current += timedelta(days=1)
         return days
@@ -129,8 +152,15 @@ class OtmPlacementSlotGenerator(models.TransientModel):
             raise UserError(_("Capacity Per Slot must be greater than zero."))
         if self.mode == "offline" and not self.venue:
             raise UserError(_("Please set a Venue for offline slots."))
+        if not any(self._selected_weekdays().values()):
+            raise UserError(_("Select at least one weekday to generate slots on."))
 
         days = self._working_days()
+        if not days:
+            raise UserError(
+                _("No dates in the selected range fall on the chosen weekdays. "
+                  "Adjust the date range or weekday selection.")
+            )
         total_planned = len(days) * self.slots_per_day
         if total_planned > MAX_SLOTS_PER_RUN:
             raise UserError(

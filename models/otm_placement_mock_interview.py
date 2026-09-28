@@ -63,15 +63,27 @@ class OtmPlacementMockInterview(models.Model):
     reminder_sent = fields.Boolean(default=False, copy=False)
 
     @api.model
-    def book_slot(self, candidate, slot):
+    def book_slot(self, candidate, slot, bypass_active_check=False):
         """Atomically book `slot` (a otm.placement.interview.slot recordset)
         for `candidate`. Must be called sudo()'d from a public/portal
         controller. Raises UserError if the slot is no longer available.
         Uses a row-level lock so two simultaneous requests cannot both
         book the last remaining seat (server-side, never trust JS alone).
+
+        Also enforces the one-active-interview-at-a-time rule: a candidate
+        who already has a scheduled/confirmed interview, or whose last
+        interview is completed and hasn't been granted re-attempt
+        permission, cannot self-book another slot here (see
+        `candidate._check_can_self_book()`). `bypass_active_check=True` is
+        for the two internal call sites that legitimately create a second
+        interview on the candidate's behalf after staff approval (reschedule
+        and manager-assigned re-attempt) - never pass it from a
+        public/portal controller.
         """
         candidate.ensure_one()
         slot.ensure_one()
+        if not bypass_active_check:
+            candidate._check_can_self_book()
 
         # Flush ALL of slot's pending ORM state (not just capacity/
         # booked_count) before the raw SQL below. This matters even for
@@ -147,6 +159,13 @@ class OtmPlacementMockInterview(models.Model):
             "status": "scheduled",
         })
         candidate.write({"stage": "interview_scheduled"})
+        if not bypass_active_check:
+            # Self-service booking that just went through: if it was made
+            # possible by an approved-but-unconsumed re-attempt permission,
+            # that permission is now used up.
+            pending = candidate._get_pending_reattempt_approval()
+            if pending:
+                pending.status = "completed"
         interview._send_notification("interview_booking_confirmation_mail_template")
         interview.action_send_whatsapp_confirmation()
         return interview

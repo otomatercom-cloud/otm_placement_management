@@ -10,7 +10,6 @@
                     <group string="Date Range">
                         <field name="date_from"/>
                         <field name="date_to"/>
-                        <field name="skip_weekends"/>
                     </group>
                     <group string="Per-Day Schedule">
                         <field name="day_start_time" widget="float_time"/>
@@ -18,6 +17,31 @@
                         <field name="slot_duration"/>
                         <field name="gap_minutes"/>
                     </group>
+                </group>
+                <group string="Weekdays">
+                    <div class="d-flex flex-wrap" style="gap: 16px;" colspan="2">
+                        <div class="d-flex align-items-center" style="gap: 4px;">
+                            <field name="weekday_mon"/><label for="weekday_mon" string="Mon"/>
+                        </div>
+                        <div class="d-flex align-items-center" style="gap: 4px;">
+                            <field name="weekday_tue"/><label for="weekday_tue" string="Tue"/>
+                        </div>
+                        <div class="d-flex align-items-center" style="gap: 4px;">
+                            <field name="weekday_wed"/><label for="weekday_wed" string="Wed"/>
+                        </div>
+                        <div class="d-flex align-items-center" style="gap: 4px;">
+                            <field name="weekday_thu"/><label for="weekday_thu" string="Thu"/>
+                        </div>
+                        <div class="d-flex align-items-center" style="gap: 4px;">
+                            <field name="weekday_fri"/><label for="weekday_fri" string="Fri"/>
+                        </div>
+                        <div class="d-flex align-items-center" style="gap: 4px;">
+                            <field name="weekday_sat"/><label for="weekday_sat" string="Sat"/>
+                        </div>
+                        <div class="d-flex align-items-center" style="gap: 4px;">
+                            <field name="weekday_sun"/><label for="weekday_sun" string="Sun"/>
+                        </div>
+                    </div>
                 </group>
                 <group>
                     <group string="Slot Details">
