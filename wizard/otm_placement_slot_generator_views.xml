@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_otm_placement_slot_generator_form" model="ir.ui.view">
+        <field name="name">otm.placement.slot.generator.form</field>
+        <field name="model">otm.placement.slot.generator</field>
+        <field name="arch" type="xml">
+            <form string="Generate Interview Slots">
+                <group>
+                    <group string="Date Range">
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                        <field name="skip_weekends"/>
+                    </group>
+                    <group string="Per-Day Schedule">
+                        <field name="day_start_time" widget="float_time"/>
+                        <field name="slots_per_day"/>
+                        <field name="slot_duration"/>
+                        <field name="gap_minutes"/>
+                    </group>
+                </group>
+                <group>
+                    <group string="Slot Details">
+                        <field name="mode"/>
+                        <field name="capacity"/>
+                        <field name="interviewer_id"/>
+                    </group>
+                    <group string="Location" invisible="mode != 'online'">
+                        <field name="meeting_platform"/>
+                        <field name="meeting_url"/>
+                    </group>
+                    <group string="Location" invisible="mode != 'offline'">
+                        <field name="venue"/>
+                    </group>
+                </group>
+                <div class="alert alert-info mt-2" role="alert" invisible="not preview">
+                    <field name="preview" nolabel="1"/>
+                </div>
+                <footer>
+                    <button name="action_generate_slots" type="object"
+                            string="Generate Slots" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_otm_placement_slot_generator" model="ir.actions.act_window">
+        <field name="name">Generate Interview Slots</field>
+        <field name="res_model">otm.placement.slot.generator</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

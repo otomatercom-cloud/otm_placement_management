@@ -150,6 +150,7 @@
                         </t>
                         <t t-else="">
                             <p>You have no upcoming mock interview scheduled.</p>
+                            <a href="/placement/book-interview" class="btn otm-btn-primary">Book Your Mock Interview</a>
                         </t>
                     </div>
                 </div>

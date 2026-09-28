@@ -4,234 +4,388 @@
 <template id="placement_register_page" name="Placement Registration">
     <t t-call="website.layout">
         <t t-set="pageName" t-value="'placement_register'"/>
-        <div id="otm-placement-app" class="otm-placement-app">
+        <div id="otm-placement-app" class="otm-placement-app otm-split-shell">
 
             <input type="hidden" id="otm_csrf_token" t-att-value="request.csrf_token()"/>
             <input type="hidden" id="otm_years_json" t-att-value="years_json"/>
 
-            <!-- HERO -->
-            <section class="otm-hero">
-                <div class="container text-center">
-                    <span class="otm-hero-eyebrow">Career &amp; Placement Support</span>
-                    <h1 class="otm-hero-title">Build Your Career, Interview-Ready</h1>
-                    <p class="otm-hero-sub">Get personalised mock interview support and career preparation from our placement team.</p>
-                    <a href="#otm-register-form" class="btn otm-btn-primary otm-btn-lg">Start Your Registration</a>
-                </div>
-            </section>
-
-            <!-- FORM CARD -->
-            <section id="otm-register-form" class="otm-form-section">
-                <div class="container">
-                    <div class="otm-card">
-
-                        <!-- Progress -->
-                        <div class="otm-progress" id="otm-progress">
-                            <div class="otm-progress-bar"><div class="otm-progress-fill" id="otm-progress-fill"></div></div>
-                            <div class="otm-progress-steps">
-                                <span class="otm-step-dot active" data-step="1">1<em>Personal</em></span>
-                                <span class="otm-step-dot" data-step="2">2<em>Academic</em></span>
-                                <span class="otm-step-dot" data-step="3">3<em>Employment</em></span>
-                                <span class="otm-step-dot" data-step="4">4<em>Support</em></span>
-                                <span class="otm-step-dot" data-step="5">5<em>Interview</em></span>
-                            </div>
-                        </div>
-
-                        <div id="otm-alert" class="otm-alert d-none"></div>
-
-                        <!-- STEP 1 -->
-                        <div class="otm-step" data-step="1">
-                            <h2 class="otm-step-title">Personal Information</h2>
-                            <div class="otm-field">
-                                <label>Name *</label>
-                                <input type="text" class="otm-input" id="otm_name" placeholder="Your full name"/>
-                                <small class="otm-error" id="err_name"></small>
-                            </div>
-                            <div class="otm-field">
-                                <label>WhatsApp Number *</label>
-                                <input type="tel" class="otm-input" id="otm_phone" placeholder="e.g. 9876543210"/>
-                                <small class="otm-error" id="err_phone"></small>
-                            </div>
-                            <div class="otm-field">
-                                <label>Email Address *</label>
-                                <input type="email" class="otm-input" id="otm_email" placeholder="you@example.com"/>
-                                <small class="otm-error" id="err_email"></small>
-                            </div>
-                        </div>
-
-                        <!-- STEP 2 -->
-                        <div class="otm-step d-none" data-step="2">
-                            <h2 class="otm-step-title">Academic Information</h2>
-                            <div class="otm-field">
-                                <label>Program *</label>
-                                <select class="otm-input" id="otm_program">
-                                    <option value="">Select your program</option>
-                                    <t t-foreach="programs" t-as="program">
-                                        <option t-att-value="program.id" t-esc="program.name"/>
-                                    </t>
-                                </select>
-                                <small class="otm-error" id="err_program_id"></small>
-                            </div>
-                            <div class="otm-field">
-                                <label>Admission Year</label>
-                                <select class="otm-input" id="otm_admission_year"></select>
-                            </div>
-                            <div class="otm-field">
-                                <label>Current Status</label>
-                                <select class="otm-input" id="otm_qualification_status">
-                                    <option value="">Select status</option>
-                                    <option value="partly_qualified">Partly Qualified</option>
-                                    <option value="fully_qualified">Fully Qualified</option>
-                                    <option value="not_qualified">Not Qualified</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- STEP 3 -->
-                        <div class="otm-step d-none" data-step="3">
-                            <h2 class="otm-step-title">Employment Information</h2>
-                            <div class="otm-field">
-                                <label>Employment Status</label>
-                                <select class="otm-input" id="otm_employment_status">
-                                    <option value="jobseeker">Jobseeker</option>
-                                    <option value="employed">Employed</option>
-                                    <option value="intern">Intern</option>
-                                </select>
-                            </div>
-                            <div id="otm_employed_fields" class="d-none">
-                                <div class="otm-field">
-                                    <label>Company Name</label>
-                                    <input type="text" class="otm-input" id="otm_company_name"/>
-                                </div>
-                                <div class="otm-field">
-                                    <label>Designation</label>
-                                    <input type="text" class="otm-input" id="otm_designation"/>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- STEP 4 -->
-                        <div class="otm-step d-none" data-step="4">
-                            <h2 class="otm-step-title">Where Would You Like Support?</h2>
-                            <div class="otm-checkbox-grid" id="otm_support_areas">
-                                <t t-foreach="support_areas" t-as="area">
-                                    <label class="otm-checkbox-card">
-                                        <input type="checkbox" t-att-value="area.id" class="otm-support-checkbox"/>
-                                        <span t-esc="area.name"/>
-                                    </label>
-                                </t>
-                            </div>
-                            <div class="otm-field">
-                                <label>Additional Requirements</label>
-                                <textarea class="otm-input" id="otm_additional_support" rows="3"/>
-                            </div>
-                        </div>
-
-                        <!-- STEP 5 -->
-                        <div class="otm-step d-none" data-step="5">
-                            <h2 class="otm-step-title">Would you like a mock interview?</h2>
-                            <p class="otm-step-sub">Optional — you can register now and book a slot later if you're not ready to pick one yet.</p>
-                            <small class="otm-error" id="err_interview_preference"></small>
-                            <div class="otm-mode-grid">
-                                <label class="otm-mode-card" data-mode="online">
-                                    <input type="radio" name="otm_mode" value="online"/>
-                                    <span class="otm-mode-icon">💻</span>
-                                    <strong>Online</strong>
-                                    <span>Interview via Google Meet / Zoom</span>
-                                </label>
-                                <label class="otm-mode-card" data-mode="offline">
-                                    <input type="radio" name="otm_mode" value="offline"/>
-                                    <span class="otm-mode-icon">🏢</span>
-                                    <strong>Offline</strong>
-                                    <span>Attend at our centre</span>
-                                </label>
-                                <label class="otm-mode-card" data-mode="skip">
-                                    <input type="radio" name="otm_mode" value="skip"/>
-                                    <span class="otm-mode-icon">🕒</span>
-                                    <strong>Not Right Now</strong>
-                                    <span>Register only, decide later</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- STEP 6: SLOT SELECTION (populated after submit) -->
-                        <div class="otm-step d-none" data-step="6">
-                            <h2 class="otm-step-title">Choose Your Mock Interview Slot</h2>
-                            <div class="otm-slot-datebar" id="otm_slot_dates"></div>
-                            <div class="otm-slot-grid" id="otm_slot_grid"></div>
-                        </div>
-
-                        <!-- STEP 7: SUMMARY -->
-                        <div class="otm-step d-none" data-step="7">
-                            <h2 class="otm-step-title">Booking Summary</h2>
-                            <div class="otm-summary" id="otm_summary"></div>
-                        </div>
-
-                        <!-- STEP 8: SUCCESS -->
-                        <div class="otm-step d-none" data-step="8">
-                            <div class="otm-success">
-                                <div class="otm-success-icon">🎉</div>
-                                <h2>Mock Interview Booked Successfully!</h2>
-                                <p>Your interview has been scheduled.</p>
-                                <div class="otm-summary" id="otm_success_summary"></div>
-                                <p class="text-muted">Meeting link will be available in your portal.</p>
-                                <a href="#" id="otm_view_booking" class="btn otm-btn-primary">View Booking</a>
-                            </div>
-                        </div>
-
-                        <!-- NAV -->
-                        <div class="otm-nav" id="otm-nav">
-                            <button type="button" class="btn otm-btn-outline" id="otm_btn_back">Back</button>
-                            <button type="button" class="btn otm-btn-primary" id="otm_btn_next">Continue</button>
-                        </div>
-
+            <aside class="otm-split-brand">
+                <div class="otm-split-logo">
+                    <span class="otm-split-logo-icon">🎓</span>
+                    <div class="otm-split-logo-text">
+                        <strong>Placement Support</strong>
+                        <small>Career &amp; Placement Support</small>
                     </div>
                 </div>
-            </section>
+                <div class="otm-split-brand-mid">
+                    <h1>Your entire placement journey, organized in one place.</h1>
+                    <p>Mock interviews, career support and placement tracking — tracked, reminded, and always up to date.</p>
+                    <ul class="otm-split-features">
+                        <li>Register in under 2 minutes</li>
+                        <li>Book an Online or Offline mock interview slot</li>
+                        <li>Get reminders and updates by email</li>
+                    </ul>
+                </div>
+                <div class="otm-split-brand-bottom">
+                    <small>
+                        Already registered?
+                        <a href="/placement/book-interview">Book your mock interview</a>
+                    </small>
+                </div>
+            </aside>
+
+            <main class="otm-split-form-panel">
+                <div class="otm-card otm-split-card">
+
+                    <!-- Progress -->
+                    <div class="otm-progress" id="otm-progress">
+                        <div class="otm-progress-bar"><div class="otm-progress-fill" id="otm-progress-fill"></div></div>
+                        <div class="otm-progress-steps">
+                            <span class="otm-step-dot active" data-step="1">1<em>Personal</em></span>
+                            <span class="otm-step-dot" data-step="2">2<em>Academic</em></span>
+                            <span class="otm-step-dot" data-step="3">3<em>Employment</em></span>
+                            <span class="otm-step-dot" data-step="4">4<em>Support</em></span>
+                            <span class="otm-step-dot" data-step="5">5<em>Interview</em></span>
+                        </div>
+                    </div>
+
+                    <div id="otm-alert" class="otm-alert d-none"></div>
+
+                    <!-- STEP 1 -->
+                    <div class="otm-step" data-step="1">
+                        <h2 class="otm-step-title">Personal Information</h2>
+                        <div class="otm-field">
+                            <label>Name *</label>
+                            <input type="text" class="otm-input" id="otm_name" placeholder="Your full name"/>
+                            <small class="otm-error" id="err_name"></small>
+                        </div>
+                        <div class="otm-field">
+                            <label>WhatsApp Number *</label>
+                            <input type="tel" class="otm-input" id="otm_phone" placeholder="e.g. 9876543210"/>
+                            <small class="otm-error" id="err_phone"></small>
+                        </div>
+                        <div class="otm-field">
+                            <label>Email Address *</label>
+                            <input type="email" class="otm-input" id="otm_email" placeholder="you@example.com"/>
+                            <small class="otm-error" id="err_email"></small>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2 -->
+                    <div class="otm-step d-none" data-step="2">
+                        <h2 class="otm-step-title">Academic Information</h2>
+                        <div class="otm-field">
+                            <label>Program *</label>
+                            <select class="otm-input" id="otm_program">
+                                <option value="">Select your program</option>
+                                <t t-foreach="programs" t-as="program">
+                                    <option t-att-value="program.id" t-esc="program.name"/>
+                                </t>
+                            </select>
+                            <small class="otm-error" id="err_program_id"></small>
+                        </div>
+                        <div class="otm-field">
+                            <label>Admission Year</label>
+                            <select class="otm-input" id="otm_admission_year"></select>
+                        </div>
+                        <div class="otm-field">
+                            <label>Current Status</label>
+                            <select class="otm-input" id="otm_qualification_status">
+                                <option value="">Select status</option>
+                                <option value="partly_qualified">Partly Qualified</option>
+                                <option value="fully_qualified">Fully Qualified</option>
+                                <option value="not_qualified">Not Qualified</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3 -->
+                    <div class="otm-step d-none" data-step="3">
+                        <h2 class="otm-step-title">Employment Information</h2>
+                        <div class="otm-field">
+                            <label>Employment Status</label>
+                            <select class="otm-input" id="otm_employment_status">
+                                <option value="jobseeker">Jobseeker</option>
+                                <option value="employed">Employed</option>
+                                <option value="intern">Intern</option>
+                            </select>
+                        </div>
+                        <div id="otm_employed_fields" class="d-none">
+                            <div class="otm-field">
+                                <label>Company Name</label>
+                                <input type="text" class="otm-input" id="otm_company_name"/>
+                            </div>
+                            <div class="otm-field">
+                                <label>Designation</label>
+                                <input type="text" class="otm-input" id="otm_designation"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4 -->
+                    <div class="otm-step d-none" data-step="4">
+                        <h2 class="otm-step-title">Where Would You Like Support?</h2>
+                        <div class="otm-checkbox-grid" id="otm_support_areas">
+                            <t t-foreach="support_areas" t-as="area">
+                                <label class="otm-checkbox-card">
+                                    <input type="checkbox" t-att-value="area.id" class="otm-support-checkbox"/>
+                                    <span t-esc="area.name"/>
+                                </label>
+                            </t>
+                        </div>
+                        <div class="otm-field">
+                            <label>Additional Requirements</label>
+                            <textarea class="otm-input" id="otm_additional_support" rows="3"/>
+                        </div>
+                    </div>
+
+                    <!-- STEP 5 -->
+                    <div class="otm-step d-none" data-step="5">
+                        <h2 class="otm-step-title">Would you like a mock interview?</h2>
+                        <p class="otm-step-sub">Optional — you can register now and book a slot later if you're not ready to pick one yet.</p>
+                        <small class="otm-error" id="err_interview_preference"></small>
+                        <div class="otm-mode-grid">
+                            <label class="otm-mode-card" data-mode="online">
+                                <input type="radio" name="otm_mode" value="online"/>
+                                <span class="otm-mode-icon">💻</span>
+                                <strong>Online</strong>
+                                <span>Interview via Google Meet / Zoom</span>
+                            </label>
+                            <label class="otm-mode-card" data-mode="offline">
+                                <input type="radio" name="otm_mode" value="offline"/>
+                                <span class="otm-mode-icon">🏢</span>
+                                <strong>Offline</strong>
+                                <span>Attend at our centre</span>
+                            </label>
+                            <label class="otm-mode-card" data-mode="skip">
+                                <input type="radio" name="otm_mode" value="skip"/>
+                                <span class="otm-mode-icon">🕒</span>
+                                <strong>Not Right Now</strong>
+                                <span>Register only, decide later</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- STEP 6: SLOT SELECTION (populated after submit) -->
+                    <div class="otm-step d-none" data-step="6">
+                        <h2 class="otm-step-title">Choose Your Mock Interview Slot</h2>
+                        <div class="otm-slot-datebar" id="otm_slot_dates"></div>
+                        <div class="otm-slot-grid" id="otm_slot_grid"></div>
+                    </div>
+
+                    <!-- STEP 7: SUMMARY -->
+                    <div class="otm-step d-none" data-step="7">
+                        <h2 class="otm-step-title">Booking Summary</h2>
+                        <div class="otm-summary" id="otm_summary"></div>
+                    </div>
+
+                    <!-- STEP 8: SUCCESS -->
+                    <div class="otm-step d-none" data-step="8">
+                        <div class="otm-success">
+                            <div class="otm-success-icon">🎉</div>
+                            <h2>Mock Interview Booked Successfully!</h2>
+                            <p>Your interview has been scheduled.</p>
+                            <div class="otm-summary" id="otm_success_summary"></div>
+                            <p class="text-muted">Meeting link will be available in your portal.</p>
+                            <a href="#" id="otm_view_booking" class="btn otm-btn-primary">View Booking</a>
+                        </div>
+                    </div>
+
+                    <!-- NAV -->
+                    <div class="otm-nav" id="otm-nav">
+                        <button type="button" class="btn otm-btn-outline" id="otm_btn_back">Back</button>
+                        <button type="button" class="btn otm-btn-primary" id="otm_btn_next">Continue</button>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </t>
+</template>
+
+<template id="placement_book_interview_page" name="Book Your Mock Interview">
+    <t t-call="website.layout">
+        <div id="otm-book-interview-app" class="otm-placement-app otm-split-shell">
+
+            <input type="hidden" id="otm_bi_csrf_token" t-att-value="request.csrf_token()"/>
+
+            <aside class="otm-split-brand">
+                <div class="otm-split-logo">
+                    <span class="otm-split-logo-icon">🎓</span>
+                    <div class="otm-split-logo-text">
+                        <strong>Placement Support</strong>
+                        <small>Career &amp; Placement Support</small>
+                    </div>
+                </div>
+                <div class="otm-split-brand-mid">
+                    <h1>Check your mock interview &amp; booking status.</h1>
+                    <p>Already registered with us? Find your registration and pick a slot, or check your booking any time.</p>
+                    <ul class="otm-split-features">
+                        <li>No login required</li>
+                        <li>Verify with your WhatsApp number and email</li>
+                        <li>Pick an Online or Offline slot instantly</li>
+                    </ul>
+                </div>
+                <div class="otm-split-brand-bottom">
+                    <small>
+                        Not registered yet?
+                        <a href="/placement/register">Register here</a>
+                    </small>
+                </div>
+            </aside>
+
+            <main class="otm-split-form-panel">
+                <div class="otm-card otm-split-card">
+
+                    <div id="otm-bi-alert" class="otm-alert d-none"></div>
+
+                    <!-- STEP 1: lookup -->
+                    <div class="otm-step" data-step="1">
+                        <h2 class="otm-step-title">Find Your Registration</h2>
+                        <p class="otm-step-sub">Enter the WhatsApp number and email you registered with.</p>
+                        <div class="otm-field">
+                            <label>WhatsApp Number *</label>
+                            <input type="tel" class="otm-input" id="otm_bi_phone" placeholder="e.g. 9876543210"/>
+                        </div>
+                        <div class="otm-field">
+                            <label>Email Address *</label>
+                            <input type="email" class="otm-input" id="otm_bi_email" placeholder="you@example.com"/>
+                        </div>
+                        <div class="otm-nav">
+                            <a href="/placement/register" class="btn otm-btn-outline">Not Registered Yet?</a>
+                            <button type="button" class="btn otm-btn-primary" id="otm_bi_btn_lookup">Continue</button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: already booked notice -->
+                    <div class="otm-step d-none" data-step="already">
+                        <div class="otm-success">
+                            <div class="otm-success-icon">📅</div>
+                            <h2>You Already Have an Interview Scheduled</h2>
+                            <p>Hi <span id="otm_bi_already_name"/>, you already have a mock interview booked with us.</p>
+                            <a href="#" id="otm_bi_view_existing" class="btn otm-btn-primary mt-2">View My Booking</a>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: mode -->
+                    <div class="otm-step d-none" data-step="mode">
+                        <h2 class="otm-step-title">How would you prefer your mock interview?</h2>
+                        <div class="otm-mode-grid">
+                            <label class="otm-mode-card" data-mode="online">
+                                <input type="radio" name="otm_bi_mode" value="online"/>
+                                <span class="otm-mode-icon">💻</span>
+                                <strong>Online</strong>
+                                <span>Interview via Google Meet / Zoom</span>
+                            </label>
+                            <label class="otm-mode-card" data-mode="offline">
+                                <input type="radio" name="otm_bi_mode" value="offline"/>
+                                <span class="otm-mode-icon">🏢</span>
+                                <strong>Offline</strong>
+                                <span>Attend at our centre</span>
+                            </label>
+                        </div>
+                        <div class="otm-nav">
+                            <button type="button" class="btn otm-btn-outline" id="otm_bi_btn_back_mode">Back</button>
+                            <button type="button" class="btn otm-btn-primary" id="otm_bi_btn_mode_next">Continue</button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: slots -->
+                    <div class="otm-step d-none" data-step="slots">
+                        <h2 class="otm-step-title">Choose Your Mock Interview Slot</h2>
+                        <div class="otm-slot-datebar" id="otm_bi_slot_dates"></div>
+                        <div class="otm-slot-grid" id="otm_bi_slot_grid"></div>
+                        <div class="otm-nav">
+                            <button type="button" class="btn otm-btn-outline" id="otm_bi_btn_back_slots">Back</button>
+                            <button type="button" class="btn otm-btn-primary" id="otm_bi_btn_slots_next">Continue</button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 5: summary -->
+                    <div class="otm-step d-none" data-step="summary">
+                        <h2 class="otm-step-title">Booking Summary</h2>
+                        <div class="otm-summary" id="otm_bi_summary"></div>
+                        <div class="otm-nav">
+                            <button type="button" class="btn otm-btn-outline" id="otm_bi_btn_back_summary">Back</button>
+                            <button type="button" class="btn otm-btn-primary" id="otm_bi_btn_confirm">Confirm Booking</button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 6: success -->
+                    <div class="otm-step d-none" data-step="success">
+                        <div class="otm-success">
+                            <div class="otm-success-icon">🎉</div>
+                            <h2>Mock Interview Booked Successfully!</h2>
+                            <div class="otm-summary" id="otm_bi_success_summary"></div>
+                            <a href="#" id="otm_bi_view_booking" class="btn otm-btn-primary mt-2">View Booking</a>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
         </div>
     </t>
 </template>
 
 <template id="placement_booking_success_page" name="Placement Booking Confirmed">
     <t t-call="website.layout">
-        <div class="otm-placement-app">
-            <section class="otm-form-section">
-                <div class="container">
-                    <div class="otm-card">
-                        <div class="otm-success">
-                            <t t-if="interview">
-                                <div class="otm-success-icon">🎉</div>
-                                <h2>Your Mock Interview is Confirmed</h2>
-                                <div class="otm-summary">
-                                    <div><strong>Candidate:</strong> <span t-esc="candidate.name"/></div>
-                                    <div><strong>Reference:</strong> <span t-esc="candidate.candidate_reference"/></div>
-                                    <div><strong>Program:</strong> <span t-esc="candidate.program_id.name"/></div>
-                                    <div><strong>Mode:</strong> <span t-esc="dict(interview._fields['mode'].selection).get(interview.mode)"/></div>
-                                    <div t-if="interview.scheduled_start">
-                                        <strong>Date/Time:</strong>
-                                        <span t-esc="interview.scheduled_start"/>
-                                    </div>
-                                    <div t-if="interview.mode == 'offline' and interview.venue">
-                                        <strong>Venue:</strong> <span t-esc="interview.venue"/>
-                                    </div>
-                                    <div t-if="interview.mode == 'online' and interview.meeting_url">
-                                        <strong>Meeting Link:</strong>
-                                        <a t-att-href="interview.meeting_url" t-esc="interview.meeting_url"/>
-                                    </div>
-                                    <div><strong>Status:</strong> <span t-esc="interview.status"/></div>
-                                </div>
-                            </t>
-                            <t t-else="">
-                                <h2>Registration Received</h2>
-                                <p>Hi <span t-esc="candidate.name"/>, thank you for registering. Our team will reach out to you shortly.</p>
-                                <div class="otm-summary">
-                                    <div><strong>Reference:</strong> <span t-esc="candidate.candidate_reference"/></div>
-                                    <div><strong>Program:</strong> <span t-esc="candidate.program_id.name"/></div>
-                                </div>
-                            </t>
-                        </div>
+        <div class="otm-placement-app otm-split-shell">
+            <aside class="otm-split-brand">
+                <div class="otm-split-logo">
+                    <span class="otm-split-logo-icon">🎓</span>
+                    <div class="otm-split-logo-text">
+                        <strong>Placement Support</strong>
+                        <small>Career &amp; Placement Support</small>
                     </div>
                 </div>
-            </section>
+                <div class="otm-split-brand-mid">
+                    <h1>You're all set.</h1>
+                    <p>We'll be in touch with next steps. You can come back any time to check or manage your mock interview.</p>
+                </div>
+                <div class="otm-split-brand-bottom">
+                    <small>
+                        Need to check your status later?
+                        <a href="/placement/book-interview">Check it here</a>
+                    </small>
+                </div>
+            </aside>
+            <main class="otm-split-form-panel">
+                <div class="otm-card otm-split-card">
+                    <div class="otm-success">
+                        <t t-if="interview">
+                            <div class="otm-success-icon">🎉</div>
+                            <h2>Your Mock Interview is Confirmed</h2>
+                            <div class="otm-summary">
+                                <div><strong>Candidate:</strong> <span t-esc="candidate.name"/></div>
+                                <div><strong>Reference:</strong> <span t-esc="candidate.candidate_reference"/></div>
+                                <div><strong>Program:</strong> <span t-esc="candidate.program_id.name"/></div>
+                                <div><strong>Mode:</strong> <span t-esc="dict(interview._fields['mode'].selection).get(interview.mode)"/></div>
+                                <div t-if="interview.scheduled_start">
+                                    <strong>Date/Time:</strong>
+                                    <span t-esc="interview.scheduled_start"/>
+                                </div>
+                                <div t-if="interview.mode == 'offline' and interview.venue">
+                                    <strong>Venue:</strong> <span t-esc="interview.venue"/>
+                                </div>
+                                <div t-if="interview.mode == 'online' and interview.meeting_url">
+                                    <strong>Meeting Link:</strong>
+                                    <a t-att-href="interview.meeting_url" t-esc="interview.meeting_url"/>
+                                </div>
+                                <div><strong>Status:</strong> <span t-esc="interview.status"/></div>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <h2>Registration Received</h2>
+                            <p>Hi <span t-esc="candidate.name"/>, thank you for registering. Our team will reach out to you shortly.</p>
+                            <div class="otm-summary">
+                                <div><strong>Reference:</strong> <span t-esc="candidate.candidate_reference"/></div>
+                                <div><strong>Program:</strong> <span t-esc="candidate.program_id.name"/></div>
+                            </div>
+                            <a href="/placement/book-interview" class="btn otm-btn-primary mt-3">Book Your Mock Interview</a>
+                        </t>
+                    </div>
+                </div>
+            </main>
         </div>
     </t>
 </template>

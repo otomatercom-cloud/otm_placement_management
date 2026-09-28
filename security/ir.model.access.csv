@@ -15,3 +15,4 @@ access_otm_placement_record_user,otm.placement.record.user,model_otm_placement_r
 access_otm_placement_record_manager,otm.placement.record.manager,model_otm_placement_record,group_placement_manager,1,1,1,1
 access_otm_placement_reschedule_request_user,otm.placement.reschedule.request.user,model_otm_placement_reschedule_request,group_placement_user,1,1,1,0
 access_otm_placement_reschedule_request_manager,otm.placement.reschedule.request.manager,model_otm_placement_reschedule_request,group_placement_manager,1,1,1,1
+access_otm_placement_slot_generator_manager,otm.placement.slot.generator.manager,model_otm_placement_slot_generator,group_placement_manager,1,1,1,1

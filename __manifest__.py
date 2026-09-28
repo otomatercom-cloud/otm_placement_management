@@ -27,6 +27,7 @@ Placement & Mock Interview Management (Otomater)
         "views/otm_placement_config_views.xml",
         "views/otm_placement_candidate_views.xml",
         "views/otm_placement_interview_slot_views.xml",
+        "wizard/otm_placement_slot_generator_views.xml",
         "views/otm_placement_mock_interview_views.xml",
         "views/otm_placement_reschedule_request_views.xml",
         "views/otm_placement_record_views.xml",
@@ -39,6 +40,7 @@ Placement & Mock Interview Management (Otomater)
         "web.assets_frontend": [
             "otm_placement_management/static/src/css/placement.css",
             "otm_placement_management/static/src/js/placement.js",
+            "otm_placement_management/static/src/js/placement_book_interview.js",
         ],
         "web.assets_backend": [
             "otm_placement_management/static/src/css/otm_placement_dashboard.css",

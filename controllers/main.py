@@ -251,3 +251,59 @@ class OtmPlacementMainController(http.Controller):
         return request.render(
             "otm_placement_management.placement_booking_success_page", values
         )
+
+    # ------------------------------------------------------------------
+    # "Book my mock interview" - for a candidate who registered earlier
+    # (including one who chose "Not Right Now" at registration) and comes
+    # back later to book a slot. No portal login required: identity is
+    # verified by phone + email, the same pair the registration form
+    # itself uses, and the response reuses the same candidate_id/token
+    # the /placement/slots and /placement/book routes already accept.
+    # ------------------------------------------------------------------
+    @http.route("/placement/book-interview", type="http", auth="public",
+                website=True, sitemap=True)
+    def placement_book_interview(self, **kwargs):
+        return request.render(
+            "otm_placement_management.placement_book_interview_page", {}
+        )
+
+    @http.route("/placement/book-interview/lookup", type="http", methods=["POST"],
+                auth="public", website=True, csrf=False)
+    def placement_book_interview_lookup(self, **kwargs):
+        try:
+            data = json.loads(request.httprequest.get_data())
+        except ValueError:
+            return _json_response({"ok": False, "error": "Invalid request."}, 400)
+
+        request.validate_csrf(data.get("csrf_token"))
+
+        phone = (data.get("phone") or "").strip()
+        email = (data.get("email") or "").strip()
+        if not phone or not email:
+            return _json_response(
+                {"ok": False, "error": "Please enter both your WhatsApp number and email."}, 400
+            )
+
+        candidate = request.env["otm.placement.candidate"].sudo().search(
+            [("phone", "=", phone), ("email", "=", email)], limit=1
+        )
+        if not candidate:
+            return _json_response({
+                "ok": False,
+                "error": "We couldn't find a registration with that WhatsApp number "
+                         "and email. Please check for typos, or register first.",
+            }, 404)
+
+        active_interview = candidate.mock_interview_ids.filtered(
+            lambda i: i.status not in ("cancelled",)
+        )[:1]
+
+        return _json_response({
+            "ok": True,
+            "candidate_id": candidate.id,
+            "token": candidate.access_token,
+            "name": candidate.name,
+            "program": candidate.program_id.name,
+            "already_booked": bool(active_interview),
+            "success_url": "/placement/booking/success/%s" % candidate.access_token,
+        })

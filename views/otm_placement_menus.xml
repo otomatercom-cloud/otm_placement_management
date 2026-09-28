@@ -15,6 +15,10 @@
     <menuitem id="menu_otm_placement_interview_slot" name="Interview Slots"
               parent="menu_otm_placement_root" action="action_otm_placement_interview_slot" sequence="40"/>
 
+    <menuitem id="menu_otm_placement_slot_generator" name="Generate Slots"
+              parent="menu_otm_placement_root" action="action_otm_placement_slot_generator" sequence="41"
+              groups="otm_placement_management.group_placement_manager"/>
+
     <menuitem id="menu_otm_placement_reschedule_request" name="Reschedule Requests"
               parent="menu_otm_placement_root" action="action_otm_placement_reschedule_request" sequence="50"/>
 
