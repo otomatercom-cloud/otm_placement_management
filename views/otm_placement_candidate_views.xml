@@ -21,6 +21,10 @@
                             <field name="placement_record_count" widget="statinfo" string="Placements"/>
                         </button>
                     </div>
+                    <widget name="web_ribbon" title="Alumni" bg_color="text-bg-info"
+                            invisible="erp_check_status != 'old_student'"/>
+                    <widget name="web_ribbon" title="Existing Student" bg_color="text-bg-success"
+                            invisible="erp_check_status != 'current_student'"/>
                     <div class="oe_title">
                         <h1><field name="candidate_reference" readonly="1"/></h1>
                         <field name="name" placeholder="Candidate Name"/>
@@ -76,6 +80,23 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Old ERP / Student Check">
+                            <div class="d-flex align-items-center mb-3" style="gap: 12px;">
+                                <button name="action_check_old_erp_status" type="object"
+                                        string="Check Old ERP" class="btn-secondary"
+                                        icon="fa-refresh"/>
+                                <field name="erp_check_status" widget="badge"
+                                       decoration-success="erp_check_status in ('current_student', 'old_student')"
+                                       decoration-info="erp_check_status == 'lead_only'"
+                                       decoration-muted="erp_check_status in ('not_checked', 'not_found')"
+                                       decoration-warning="erp_check_status == 'unavailable'"
+                                       readonly="1"/>
+                            </div>
+                            <group>
+                                <field name="erp_check_note" readonly="1"/>
+                                <field name="erp_checked_on" readonly="1"/>
+                            </group>
+                        </page>
                         <page string="Internal Notes">
                             <field name="registration_date" readonly="1"/>
                         </page>
@@ -101,6 +122,12 @@
                        decoration-success="stage == 'placement'"
                        decoration-info="stage == 'interview_scheduled'"
                        decoration-warning="stage == 'follow_up'"/>
+                <field name="erp_check_status" widget="badge" optional="show"
+                       string="Old ERP"
+                       decoration-success="erp_check_status in ('current_student', 'old_student')"
+                       decoration-info="erp_check_status == 'lead_only'"
+                       decoration-muted="erp_check_status in ('not_checked', 'not_found')"
+                       decoration-warning="erp_check_status == 'unavailable'"/>
                 <field name="user_id"/>
             </list>
         </field>
@@ -153,6 +180,15 @@
                 </group>
             </search>
         </field>
+    </record>
+
+    <record id="action_otm_placement_candidate_check_old_erp" model="ir.actions.server">
+        <field name="name">Check Old ERP Status</field>
+        <field name="model_id" ref="model_otm_placement_candidate"/>
+        <field name="binding_model_id" ref="model_otm_placement_candidate"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_check_old_erp_status()</field>
     </record>
 
     <record id="action_otm_placement_candidate" model="ir.actions.act_window">

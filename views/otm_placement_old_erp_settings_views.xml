@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_otm_placement_old_erp_settings_form" model="ir.ui.view">
+        <field name="name">otm.placement.old.erp.settings.form</field>
+        <field name="model">otm.placement.old.erp.settings</field>
+        <field name="arch" type="xml">
+            <form string="Old ERP Connection">
+                <header>
+                    <button name="action_test_connection" type="object"
+                            string="Test Connection" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        Connect this module to your other (Odoo 17) ERP's Leads module so
+                        placement staff can check whether a candidate is already a known
+                        lead, an existing student, or an old student (alumni). This uses
+                        standard Odoo XML-RPC — no extra module needs to be installed on
+                        the old ERP.
+                    </div>
+                    <group>
+                        <field name="active"/>
+                        <field name="url" placeholder="https://erp.example.com"/>
+                        <field name="database" placeholder="old_erp_db"/>
+                        <field name="username" placeholder="api@example.com"/>
+                        <field name="api_key" password="True"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_otm_placement_old_erp_settings" model="ir.actions.server">
+        <field name="name">Old ERP Connection</field>
+        <field name="model_id" ref="model_otm_placement_old_erp_settings"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_settings()</field>
+    </record>
+
+</odoo>

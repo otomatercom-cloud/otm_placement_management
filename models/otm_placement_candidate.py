@@ -92,6 +92,25 @@ class OtmPlacementCandidate(models.Model):
         string="Access Token", copy=False, default=lambda self: str(uuid.uuid4())
     )
 
+    erp_check_status = fields.Selection(
+        [
+            ("not_checked", "Not Checked"),
+            ("unavailable", "Check Unavailable"),
+            ("not_found", "New — Not Found"),
+            ("lead_only", "Known Lead (Not Admitted)"),
+            ("current_student", "Existing Student"),
+            ("old_student", "Old Student (Alumni)"),
+        ],
+        string="Old ERP Status",
+        default="not_checked",
+        copy=False,
+        tracking=True,
+        help="Result of cross-checking this candidate's phone/email against "
+             "the old ERP's Leads/Admission module.",
+    )
+    erp_check_note = fields.Char(string="Old ERP Match Details", copy=False)
+    erp_checked_on = fields.Datetime(string="Old ERP Last Checked", copy=False)
+
     mock_interview_ids = fields.One2many(
         "otm.placement.mock.interview", "candidate_id", string="Mock Interview Records"
     )
@@ -150,6 +169,30 @@ class OtmPlacementCandidate(models.Model):
             "domain": [("candidate_id", "=", self.id)],
             "context": {"default_candidate_id": self.id},
         }
+
+    def action_check_old_erp_status(self):
+        Client = self.env["otm.placement.old.erp.client"]
+        valid_statuses = dict(self._fields["erp_check_status"].selection)
+        for candidate in self:
+            result = Client.check_student_status(candidate.phone, candidate.email)
+            status = result.get("status")
+            candidate.write({
+                "erp_check_status": status if status in valid_statuses else "unavailable",
+                "erp_check_note": result.get("note"),
+                "erp_checked_on": fields.Datetime.now(),
+            })
+        if len(self) == 1:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": "Old ERP Check",
+                    "message": self.erp_check_note or self.erp_check_status,
+                    "type": "warning" if self.erp_check_status == "unavailable" else "info",
+                    "sticky": False,
+                },
+            }
+        return True
 
     def _send_registration_confirmation(self):
         self.ensure_one()

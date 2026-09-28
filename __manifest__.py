@@ -25,6 +25,7 @@ Placement & Mock Interview Management (Otomater)
         "data/otm_placement_mail_templates.xml",
         "data/otm_placement_cron.xml",
         "views/otm_placement_config_views.xml",
+        "views/otm_placement_old_erp_settings_views.xml",
         "views/otm_placement_candidate_views.xml",
         "views/otm_placement_interview_slot_views.xml",
         "wizard/otm_placement_slot_generator_views.xml",

@@ -50,5 +50,7 @@
               parent="menu_otm_placement_configuration" action="action_otm_placement_support_area" sequence="20"/>
     <menuitem id="menu_otm_placement_config_interviewers" name="Interviewers"
               parent="menu_otm_placement_configuration" action="action_otm_placement_interviewers" sequence="30"/>
+    <menuitem id="menu_otm_placement_config_old_erp" name="Old ERP Connection"
+              parent="menu_otm_placement_configuration" action="action_otm_placement_old_erp_settings" sequence="40"/>
 
 </odoo>
