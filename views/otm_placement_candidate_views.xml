@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_otm_placement_candidate_form" model="ir.ui.view">
+        <field name="name">otm.placement.candidate.form</field>
+        <field name="model">otm.placement.candidate</field>
+        <field name="arch" type="xml">
+            <form string="Placement Candidate">
+                <header>
+                    <field name="stage" widget="statusbar"
+                           statusbar_visible="new,reviewed,contacted,interview_scheduled,interview_completed,follow_up,placement"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_mock_interviews" type="object"
+                                class="oe_stat_button" icon="fa-video-camera">
+                            <field name="mock_interview_count" widget="statinfo" string="Mock Interviews"/>
+                        </button>
+                        <button name="action_view_placement_records" type="object"
+                                class="oe_stat_button" icon="fa-briefcase">
+                            <field name="placement_record_count" widget="statinfo" string="Placements"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="candidate_reference" readonly="1"/></h1>
+                        <field name="name" placeholder="Candidate Name"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="phone"/>
+                            <field name="email"/>
+                            <field name="user_id"/>
+                        </group>
+                        <group>
+                            <field name="program_id"/>
+                            <field name="admission_year"/>
+                            <field name="qualification_status"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Employment">
+                            <group>
+                                <field name="employment_status"/>
+                                <field name="company_name"/>
+                                <field name="designation"/>
+                            </group>
+                        </page>
+                        <page string="Interview">
+                            <group>
+                                <field name="interview_preference"/>
+                            </group>
+                            <field name="mock_interview_ids" context="{'default_candidate_id': id}">
+                                <list>
+                                    <field name="scheduled_start"/>
+                                    <field name="mode"/>
+                                    <field name="interviewer_id"/>
+                                    <field name="status"/>
+                                    <field name="result"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Support">
+                            <group>
+                                <field name="support_area_ids" widget="many2many_tags"/>
+                                <field name="additional_support"/>
+                            </group>
+                        </page>
+                        <page string="Placement">
+                            <field name="placement_record_ids" context="{'default_candidate_id': id}">
+                                <list>
+                                    <field name="company_name"/>
+                                    <field name="designation"/>
+                                    <field name="employment_type"/>
+                                    <field name="joining_date"/>
+                                    <field name="placement_status"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Internal Notes">
+                            <field name="registration_date" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_otm_placement_candidate_list" model="ir.ui.view">
+        <field name="name">otm.placement.candidate.list</field>
+        <field name="model">otm.placement.candidate</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="stage in ('cancelled', 'not_interested')">
+                <field name="candidate_reference"/>
+                <field name="name"/>
+                <field name="program_id"/>
+                <field name="qualification_status"/>
+                <field name="employment_status"/>
+                <field name="interview_preference"/>
+                <field name="stage" widget="badge"
+                       decoration-success="stage == 'placement'"
+                       decoration-info="stage == 'interview_scheduled'"
+                       decoration-warning="stage == 'follow_up'"/>
+                <field name="user_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_otm_placement_candidate_kanban" model="ir.ui.view">
+        <field name="name">otm.placement.candidate.kanban</field>
+        <field name="model">otm.placement.candidate</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage" records_draggable="true">
+                <field name="stage"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="name"/></strong>
+                            <div><field name="candidate_reference"/></div>
+                            <div><field name="program_id"/></div>
+                            <div class="text-muted">
+                                <field name="user_id" widget="many2one_avatar_user"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_otm_placement_candidate_search" model="ir.ui.view">
+        <field name="name">otm.placement.candidate.search</field>
+        <field name="model">otm.placement.candidate</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Candidate" filter_domain="['|', ('name', 'ilike', self), ('candidate_reference', 'ilike', self)]"/>
+                <field name="phone"/>
+                <field name="email"/>
+                <field name="program_id"/>
+                <field name="user_id"/>
+                <separator/>
+                <filter name="filter_online" string="Online" domain="[('interview_preference', '=', 'online')]"/>
+                <filter name="filter_offline" string="Offline" domain="[('interview_preference', '=', 'offline')]"/>
+                <separator/>
+                <filter name="filter_my" string="My Candidates" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <group>
+                    <filter name="group_program" string="Program" context="{'group_by': 'program_id'}"/>
+                    <filter name="group_employment" string="Employment Status" context="{'group_by': 'employment_status'}"/>
+                    <filter name="group_stage" string="Stage" context="{'group_by': 'stage'}"/>
+                    <filter name="group_mode" string="Interview Mode" context="{'group_by': 'interview_preference'}"/>
+                    <filter name="group_qualification" string="Qualification Status" context="{'group_by': 'qualification_status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_otm_placement_candidate" model="ir.actions.act_window">
+        <field name="name">Candidates</field>
+        <field name="res_model">otm.placement.candidate</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_otm_placement_candidate_search"/>
+        <field name="context">{'search_default_filter_my': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smile">No candidates yet. They will appear here once they register through the placement portal.</p>
+        </field>
+    </record>
+
+</odoo>

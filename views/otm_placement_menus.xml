@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_otm_placement_root" name="Placement" sequence="45"/>
+
+    <menuitem id="menu_otm_placement_dashboard" name="Dashboard"
+              parent="menu_otm_placement_root" action="action_otm_placement_dashboard" sequence="10"/>
+
+    <menuitem id="menu_otm_placement_candidate" name="Candidates"
+              parent="menu_otm_placement_root" action="action_otm_placement_candidate" sequence="20"/>
+
+    <menuitem id="menu_otm_placement_mock_interview" name="Mock Interviews"
+              parent="menu_otm_placement_root" action="action_otm_placement_mock_interview" sequence="30"/>
+
+    <menuitem id="menu_otm_placement_interview_slot" name="Interview Slots"
+              parent="menu_otm_placement_root" action="action_otm_placement_interview_slot" sequence="40"/>
+
+    <menuitem id="menu_otm_placement_reschedule_request" name="Reschedule Requests"
+              parent="menu_otm_placement_root" action="action_otm_placement_reschedule_request" sequence="50"/>
+
+    <menuitem id="menu_otm_placement_record" name="Placement Records"
+              parent="menu_otm_placement_root" action="action_otm_placement_record" sequence="60"/>
+
+    <menuitem id="menu_otm_placement_reporting" name="Reporting"
+              parent="menu_otm_placement_root" sequence="70"
+              groups="otm_placement_management.group_placement_manager"/>
+    <menuitem id="menu_otm_placement_report_employment" name="By Employment Status"
+              parent="menu_otm_placement_reporting" action="action_otm_placement_candidates_by_employment" sequence="10"/>
+    <menuitem id="menu_otm_placement_report_qualification" name="By Qualification Status"
+              parent="menu_otm_placement_reporting" action="action_otm_placement_candidates_by_qualification" sequence="20"/>
+    <menuitem id="menu_otm_placement_report_mode" name="Online vs Offline Interviews"
+              parent="menu_otm_placement_reporting" action="action_otm_placement_interviews_by_mode" sequence="30"/>
+    <menuitem id="menu_otm_placement_report_interview_status" name="Interview Status"
+              parent="menu_otm_placement_reporting" action="action_otm_placement_interviews_by_status" sequence="40"/>
+    <menuitem id="menu_otm_placement_report_placement_status" name="Placement Status"
+              parent="menu_otm_placement_reporting" action="action_otm_placement_records_by_status" sequence="50"/>
+
+    <menuitem id="menu_otm_placement_configuration" name="Configuration"
+              parent="menu_otm_placement_root" sequence="80"
+              groups="otm_placement_management.group_placement_administrator"/>
+    <menuitem id="menu_otm_placement_config_program" name="Programs"
+              parent="menu_otm_placement_configuration" action="action_otm_placement_program" sequence="10"/>
+    <menuitem id="menu_otm_placement_config_support_area" name="Support Areas"
+              parent="menu_otm_placement_configuration" action="action_otm_placement_support_area" sequence="20"/>
+    <menuitem id="menu_otm_placement_config_interviewers" name="Interviewers"
+              parent="menu_otm_placement_configuration" action="action_otm_placement_interviewers" sequence="30"/>
+
+</odoo>

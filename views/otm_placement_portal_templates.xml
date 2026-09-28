@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="placement_portal_no_record" name="Placement Portal - No Record">
+    <t t-call="website.layout">
+        <div class="otm-placement-app">
+            <section class="otm-form-section">
+                <div class="container">
+                    <div class="otm-card text-center">
+                        <h2>No placement registration found</h2>
+                        <p>We couldn't find a placement registration linked to your account.</p>
+                        <a href="/placement/register" class="btn otm-btn-primary">Register Now</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </t>
+</template>
+
+<template id="placement_portal_home" name="My Placement Journey">
+    <t t-call="website.layout">
+        <div class="otm-placement-app">
+            <section class="otm-form-section">
+                <div class="container">
+                    <div class="otm-card">
+                        <h2>Welcome, <span t-esc="candidate.name"/> 👋</h2>
+                        <h4 class="text-muted">Your Placement Journey</h4>
+
+                        <div class="otm-portal-journey">
+                            <div class="otm-portal-journey-item">
+                                <div class="otm-check">✓</div>
+                                <div>Registration</div>
+                            </div>
+                            <div class="otm-portal-journey-item">
+                                <t t-if="candidate.stage not in ('new',)">
+                                    <div class="otm-check">✓</div>
+                                </t>
+                                <t t-else="">
+                                    <div class="otm-pending">Pending</div>
+                                </t>
+                                <div>Profile Review</div>
+                            </div>
+                            <div class="otm-portal-journey-item">
+                                <t t-if="upcoming or candidate.stage in ('interview_completed', 'follow_up', 'placement')">
+                                    <div class="otm-check">✓</div>
+                                </t>
+                                <t t-else="">
+                                    <div class="otm-pending">Pending</div>
+                                </t>
+                                <div>Mock Interview</div>
+                            </div>
+                            <div class="otm-portal-journey-item">
+                                <t t-if="candidate.stage in ('interview_completed', 'follow_up', 'placement')">
+                                    <div class="otm-check">✓</div>
+                                </t>
+                                <t t-else="">
+                                    <div class="otm-pending">Upcoming</div>
+                                </t>
+                                <div>Interview</div>
+                            </div>
+                            <div class="otm-portal-journey-item">
+                                <t t-if="candidate.stage == 'placement'">
+                                    <div class="otm-check">✓</div>
+                                </t>
+                                <t t-else="">
+                                    <div class="otm-pending">Pending</div>
+                                </t>
+                                <div>Placement</div>
+                            </div>
+                        </div>
+
+                        <div class="otm-portal-cards">
+                            <a href="/my-placement" class="otm-portal-card">
+                                <strong>My Profile</strong>
+                                <p class="text-muted mb-0">
+                                    <t t-esc="candidate.program_id.name"/> · <t t-esc="candidate.candidate_reference"/>
+                                </p>
+                            </a>
+                            <a href="/my-placement/interview" class="otm-portal-card">
+                                <strong>My Interview</strong>
+                                <p class="text-muted mb-0">
+                                    <t t-if="upcoming">
+                                        <span t-esc="upcoming.scheduled_start"/>
+                                    </t>
+                                    <t t-else="">No upcoming interview</t>
+                                </p>
+                            </a>
+                            <a href="/my-placement/interview" class="otm-portal-card">
+                                <strong>My Booking</strong>
+                                <p class="text-muted mb-0">View or manage your mock interview slot</p>
+                            </a>
+                            <div class="otm-portal-card">
+                                <strong>My Placement Status</strong>
+                                <p class="text-muted mb-0">
+                                    <t t-if="placement_record">
+                                        <span t-esc="dict(placement_record._fields['placement_status'].selection).get(placement_record.placement_status)"/>
+                                    </t>
+                                    <t t-else="">Pending</t>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </t>
+</template>
+
+<template id="placement_portal_interview" name="My Interview">
+    <t t-call="website.layout">
+        <div class="otm-placement-app">
+            <section class="otm-form-section">
+                <div class="container">
+                    <div class="otm-card">
+                        <h2>My Interview</h2>
+                        <t t-if="interview">
+                            <div class="otm-summary">
+                                <div><strong>Date:</strong> <span t-esc="interview.scheduled_start"/></div>
+                                <div><strong>Mode:</strong>
+                                    <span t-esc="dict(interview._fields['mode'].selection).get(interview.mode)"/>
+                                </div>
+                                <div t-if="interview.interviewer_id">
+                                    <strong>Interviewer:</strong> <span t-esc="interview.interviewer_id.name"/>
+                                </div>
+                                <div t-if="interview.mode == 'offline'">
+                                    <strong>Venue:</strong> <span t-esc="interview.venue"/>
+                                </div>
+                            </div>
+
+                            <t t-if="interview.mode == 'online'">
+                                <t t-if="interview.meeting_url">
+                                    <a t-att-href="interview.meeting_url" target="_blank"
+                                       class="btn otm-btn-primary mt-3">Join Interview</a>
+                                </t>
+                                <t t-else="">
+                                    <p class="text-muted mt-3">Your meeting link will appear here closer to the scheduled time.</p>
+                                </t>
+                            </t>
+
+                            <div class="mt-4 d-flex gap-2 flex-wrap">
+                                <form action="/my-placement/interview/cancel" method="post" class="d-inline">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="interview_id" t-att-value="interview.id"/>
+                                    <button type="submit" class="btn otm-btn-outline"
+                                            onclick="return confirm('Request cancellation of this interview?')">
+                                        Cancel Interview
+                                    </button>
+                                </form>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <p>You have no upcoming mock interview scheduled.</p>
+                        </t>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </t>
+</template>
+
+</odoo>

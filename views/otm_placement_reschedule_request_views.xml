@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_otm_placement_reschedule_request_form" model="ir.ui.view">
+        <field name="name">otm.placement.reschedule.request.form</field>
+        <field name="model">otm.placement.reschedule.request</field>
+        <field name="arch" type="xml">
+            <form string="Cancellation / Reschedule Request">
+                <header>
+                    <button name="action_approve" type="object" string="Approve"
+                            invisible="status != 'requested'" class="btn-primary"/>
+                    <button name="action_reject" type="object" string="Reject"
+                            invisible="status != 'requested'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="requested,approved,completed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="candidate_id" readonly="1"/>
+                            <field name="interview_id"/>
+                            <field name="request_type"/>
+                        </group>
+                        <group>
+                            <field name="current_slot_id" readonly="1"/>
+                            <field name="new_slot_id" invisible="request_type != 'reschedule'"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="reason"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_otm_placement_reschedule_request_list" model="ir.ui.view">
+        <field name="name">otm.placement.reschedule.request.list</field>
+        <field name="model">otm.placement.reschedule.request</field>
+        <field name="arch" type="xml">
+            <list decoration-warning="status == 'requested'">
+                <field name="candidate_id"/>
+                <field name="request_type"/>
+                <field name="current_slot_id"/>
+                <field name="new_slot_id"/>
+                <field name="status" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_otm_placement_reschedule_request" model="ir.actions.act_window">
+        <field name="name">Reschedule / Cancellation Requests</field>
+        <field name="res_model">otm.placement.reschedule.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

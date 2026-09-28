@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_otm_placement_mock_interview_form" model="ir.ui.view">
+        <field name="name">otm.placement.mock.interview.form</field>
+        <field name="model">otm.placement.mock.interview</field>
+        <field name="arch" type="xml">
+            <form string="Mock Interview">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm"
+                            invisible="status != 'scheduled'" class="btn-primary"/>
+                    <button name="action_mark_completed" type="object" string="Mark Completed"
+                            invisible="status not in ('scheduled', 'confirmed')" class="btn-primary"/>
+                    <button name="action_mark_no_show" type="object" string="No Show"
+                            invisible="status not in ('scheduled', 'confirmed')"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="status in ('cancelled', 'completed')"/>
+                    <button name="action_send_whatsapp_reminder" type="object" string="Send WhatsApp Reminder"/>
+                    <field name="status" widget="statusbar"
+                           statusbar_visible="scheduled,confirmed,completed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="candidate_id"/>
+                            <field name="slot_id"/>
+                            <field name="mode"/>
+                            <field name="interviewer_id"/>
+                        </group>
+                        <group>
+                            <field name="scheduled_start"/>
+                            <field name="scheduled_end"/>
+                            <field name="meeting_platform" invisible="mode != 'online'"/>
+                            <field name="meeting_url" invisible="mode != 'online'"/>
+                            <field name="venue" invisible="mode != 'offline'"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="result"/>
+                    </group>
+                    <notebook>
+                        <page string="Interviewer Notes">
+                            <field name="interviewer_notes"/>
+                        </page>
+                        <page string="Candidate Feedback">
+                            <field name="candidate_feedback"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_otm_placement_mock_interview_list" model="ir.ui.view">
+        <field name="name">otm.placement.mock.interview.list</field>
+        <field name="model">otm.placement.mock.interview</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="status in ('cancelled', 'no_show')"
+                  decoration-success="status == 'completed'">
+                <field name="candidate_id"/>
+                <field name="scheduled_start"/>
+                <field name="mode"/>
+                <field name="interviewer_id"/>
+                <field name="status" widget="badge"/>
+                <field name="result"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_otm_placement_mock_interview_calendar" model="ir.ui.view">
+        <field name="name">otm.placement.mock.interview.calendar</field>
+        <field name="model">otm.placement.mock.interview</field>
+        <field name="arch" type="xml">
+            <calendar string="Mock Interviews" date_start="scheduled_start" date_stop="scheduled_end"
+                      color="status" mode="week">
+                <field name="candidate_id"/>
+                <field name="interviewer_id"/>
+                <field name="mode"/>
+                <field name="status"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_otm_placement_mock_interview_search" model="ir.ui.view">
+        <field name="name">otm.placement.mock.interview.search</field>
+        <field name="model">otm.placement.mock.interview</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="candidate_id"/>
+                <field name="interviewer_id"/>
+                <filter name="filter_upcoming" string="Upcoming" domain="[('scheduled_start', '>=', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <group>
+                    <filter name="group_mode" string="Mode" context="{'group_by': 'mode'}"/>
+                    <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
+                    <filter name="group_interviewer" string="Interviewer" context="{'group_by': 'interviewer_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_otm_placement_mock_interview" model="ir.actions.act_window">
+        <field name="name">Mock Interviews</field>
+        <field name="res_model">otm.placement.mock.interview</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="search_view_id" ref="view_otm_placement_mock_interview_search"/>
+    </record>
+
+</odoo>

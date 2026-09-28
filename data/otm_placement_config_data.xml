@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="program_ea" model="otm.placement.program">
+            <field name="name">EA</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="program_acca" model="otm.placement.program">
+            <field name="name">ACCA</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="program_cma_usa" model="otm.placement.program">
+            <field name="name">CMA USA</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="program_ciap" model="otm.placement.program">
+            <field name="name">CIAP</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="program_ca" model="otm.placement.program">
+            <field name="name">CA</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="program_cma_india" model="otm.placement.program">
+            <field name="name">CMA INDIA</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="program_cpa" model="otm.placement.program">
+            <field name="name">CPA</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="program_cs" model="otm.placement.program">
+            <field name="name">CS</field>
+            <field name="sequence">80</field>
+        </record>
+
+        <record id="support_area_communication" model="otm.placement.support.area">
+            <field name="name">Communication</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="support_area_confidence" model="otm.placement.support.area">
+            <field name="name">Interview Confidence / Fear</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="support_area_technical" model="otm.placement.support.area">
+            <field name="name">Technical Support</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="support_area_hr_prep" model="otm.placement.support.area">
+            <field name="name">HR Interview Preparation</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="support_area_vap" model="otm.placement.support.area">
+            <field name="name">Value Added Programmes</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="support_area_other" model="otm.placement.support.area">
+            <field name="name">Other</field>
+            <field name="sequence">60</field>
+        </record>
+
+    </data>
+</odoo>

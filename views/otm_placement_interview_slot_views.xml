@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_otm_placement_interview_slot_form" model="ir.ui.view">
+        <field name="name">otm.placement.interview.slot.form</field>
+        <field name="model">otm.placement.interview.slot</field>
+        <field name="arch" type="xml">
+            <form string="Interview Slot">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="start_datetime"/>
+                            <field name="end_datetime"/>
+                            <field name="mode"/>
+                            <field name="interviewer_id"/>
+                        </group>
+                        <group>
+                            <field name="capacity"/>
+                            <field name="booked_count" readonly="1"/>
+                            <field name="available_count" readonly="1"/>
+                            <field name="slot_status" widget="badge"
+                                   decoration-success="slot_status == 'available'"
+                                   decoration-danger="slot_status == 'full'"
+                                   decoration-muted="slot_status == 'past'"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group invisible="mode != 'online'">
+                        <field name="meeting_platform"/>
+                        <field name="meeting_url"/>
+                    </group>
+                    <group invisible="mode != 'offline'">
+                        <field name="venue"/>
+                    </group>
+                    <group>
+                        <field name="notes"/>
+                    </group>
+                    <field name="mock_interview_ids" readonly="1">
+                        <list>
+                            <field name="candidate_id"/>
+                            <field name="status"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_otm_placement_interview_slot_list" model="ir.ui.view">
+        <field name="name">otm.placement.interview.slot.list</field>
+        <field name="model">otm.placement.interview.slot</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="date"/>
+                <field name="start_datetime" string="Time"/>
+                <field name="mode"/>
+                <field name="interviewer_id"/>
+                <field name="capacity"/>
+                <field name="booked_count"/>
+                <field name="available_count"/>
+                <field name="slot_status" widget="badge"
+                       decoration-success="slot_status == 'available'"
+                       decoration-danger="slot_status == 'full'"
+                       decoration-muted="slot_status == 'past'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_otm_placement_interview_slot_calendar" model="ir.ui.view">
+        <field name="name">otm.placement.interview.slot.calendar</field>
+        <field name="model">otm.placement.interview.slot</field>
+        <field name="arch" type="xml">
+            <calendar string="Interview Slots" date_start="start_datetime" date_stop="end_datetime"
+                      color="mode" mode="week">
+                <field name="mode"/>
+                <field name="interviewer_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_otm_placement_interview_slot_search" model="ir.ui.view">
+        <field name="name">otm.placement.interview.slot.search</field>
+        <field name="model">otm.placement.interview.slot</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="interviewer_id"/>
+                <filter name="filter_online" string="Online" domain="[('mode', '=', 'online')]"/>
+                <filter name="filter_offline" string="Offline" domain="[('mode', '=', 'offline')]"/>
+                <filter name="filter_available" string="Available" domain="[('available_count', '&gt;', 0), ('active', '=', True)]"/>
+                <separator/>
+                <group>
+                    <filter name="group_mode" string="Mode" context="{'group_by': 'mode'}"/>
+                    <filter name="group_interviewer" string="Interviewer" context="{'group_by': 'interviewer_id'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_otm_placement_interview_slot" model="ir.actions.act_window">
+        <field name="name">Interview Slots</field>
+        <field name="res_model">otm.placement.interview.slot</field>
+        <field name="view_mode">list,calendar,form</field>
+        <field name="search_view_id" ref="view_otm_placement_interview_slot_search"/>
+    </record>
+
+</odoo>

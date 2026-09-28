@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Candidates: by Program / Employment / Qualification -->
+    <record id="view_otm_placement_candidate_graph" model="ir.ui.view">
+        <field name="name">otm.placement.candidate.graph</field>
+        <field name="model">otm.placement.candidate</field>
+        <field name="arch" type="xml">
+            <graph string="Candidates by Program" type="bar">
+                <field name="program_id"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_otm_placement_candidate_pivot" model="ir.ui.view">
+        <field name="name">otm.placement.candidate.pivot</field>
+        <field name="model">otm.placement.candidate</field>
+        <field name="arch" type="xml">
+            <pivot string="Placement Dashboard">
+                <field name="program_id" type="row"/>
+                <field name="stage" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_otm_placement_dashboard" model="ir.actions.act_window">
+        <field name="name">Dashboard</field>
+        <field name="res_model">otm.placement.candidate</field>
+        <field name="view_mode">pivot,graph,kanban,list</field>
+        <field name="views" eval="[
+            (ref('view_otm_placement_candidate_pivot'), 'pivot'),
+            (ref('view_otm_placement_candidate_graph'), 'graph'),
+            (ref('view_otm_placement_candidate_kanban'), 'kanban'),
+            (ref('view_otm_placement_candidate_list'), 'list'),
+        ]"/>
+        <field name="context">{'search_default_group_stage': 1}</field>
+        <field name="search_view_id" ref="view_otm_placement_candidate_search"/>
+    </record>
+
+    <record id="action_otm_placement_candidates_by_employment" model="ir.actions.act_window">
+        <field name="name">Candidates by Employment Status</field>
+        <field name="res_model">otm.placement.candidate</field>
+        <field name="view_mode">graph,pivot</field>
+        <field name="context">{'group_by': ['employment_status']}</field>
+    </record>
+
+    <record id="action_otm_placement_candidates_by_qualification" model="ir.actions.act_window">
+        <field name="name">Candidates by Qualification Status</field>
+        <field name="res_model">otm.placement.candidate</field>
+        <field name="view_mode">graph,pivot</field>
+        <field name="context">{'group_by': ['qualification_status']}</field>
+    </record>
+
+    <!-- Mock Interviews: Online vs Offline / Status -->
+    <record id="view_otm_placement_mock_interview_graph" model="ir.ui.view">
+        <field name="name">otm.placement.mock.interview.graph</field>
+        <field name="model">otm.placement.mock.interview</field>
+        <field name="arch" type="xml">
+            <graph string="Online vs Offline Interviews" type="pie">
+                <field name="mode"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_otm_placement_interviews_by_mode" model="ir.actions.act_window">
+        <field name="name">Online vs Offline Interviews</field>
+        <field name="res_model">otm.placement.mock.interview</field>
+        <field name="view_mode">graph,pivot</field>
+        <field name="views" eval="[(ref('view_otm_placement_mock_interview_graph'), 'graph'), (0, 'pivot')]"/>
+    </record>
+
+    <record id="action_otm_placement_interviews_by_status" model="ir.actions.act_window">
+        <field name="name">Interview Status</field>
+        <field name="res_model">otm.placement.mock.interview</field>
+        <field name="view_mode">graph,pivot</field>
+        <field name="context">{'group_by': ['status']}</field>
+    </record>
+
+    <!-- Placement Status -->
+    <record id="action_otm_placement_records_by_status" model="ir.actions.act_window">
+        <field name="name">Placement Status</field>
+        <field name="res_model">otm.placement.record</field>
+        <field name="view_mode">graph,pivot</field>
+        <field name="context">{'group_by': ['placement_status']}</field>
+    </record>
+
+</odoo>

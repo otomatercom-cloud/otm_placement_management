@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="registration_confirmation_mail_template" model="mail.template">
+            <field name="name">Placement: Registration Confirmation</field>
+            <field name="model_id" ref="model_otm_placement_candidate"/>
+            <field name="subject">Placement Registration Received</field>
+            <field name="email_to">{{ object.email }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+                    <h2 style="color:#0f172a;">Hi <t t-out="object.name"/>,</h2>
+                    <p>Thank you for registering with our Placement &amp; Career Support programme.</p>
+                    <p><strong>Reference:</strong> <t t-out="object.candidate_reference"/><br/>
+                       <strong>Program:</strong> <t t-out="object.program_id.name"/></p>
+                    <p>Our placement team will review your details and reach out shortly.</p>
+                    <p style="color:#64748b; font-size:12px;">Career &amp; Placement Support</p>
+                </div>
+            </field>
+        </record>
+
+        <record id="interview_booking_confirmation_mail_template" model="mail.template">
+            <field name="name">Placement: Mock Interview Confirmed</field>
+            <field name="model_id" ref="model_otm_placement_mock_interview"/>
+            <field name="subject">Mock Interview Confirmed</field>
+            <field name="email_to">{{ object.candidate_id.email }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+                    <h2 style="color:#0f172a;">🎉 Mock Interview Booked Successfully!</h2>
+                    <p>Hi <t t-out="object.candidate_id.name"/>, your interview has been scheduled.</p>
+                    <p>
+                        <strong>Date:</strong> <t t-out="format_datetime(object.scheduled_start, tz=object.env.user.tz, dt_format='dd MMMM y')"/><br/>
+                        <strong>Time:</strong> <t t-out="format_datetime(object.scheduled_start, tz=object.env.user.tz, dt_format='hh:mm a')"/><br/>
+                        <strong>Mode:</strong> <t t-out="dict(object._fields['mode'].selection).get(object.mode)"/>
+                        <t t-if="object.mode == 'offline'">
+                            <br/><strong>Venue:</strong> <t t-out="object.venue"/>
+                        </t>
+                        <t t-if="object.interviewer_id">
+                            <br/><strong>Interviewer:</strong> <t t-out="object.interviewer_id.name"/>
+                        </t>
+                    </p>
+                    <p>You can view or manage your booking from your placement portal.</p>
+                </div>
+            </field>
+        </record>
+
+        <record id="interview_reminder_mail_template" model="mail.template">
+            <field name="name">Placement: Mock Interview Reminder</field>
+            <field name="model_id" ref="model_otm_placement_mock_interview"/>
+            <field name="subject">Your Mock Interview is Tomorrow</field>
+            <field name="email_to">{{ object.candidate_id.email }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+                    <h2 style="color:#0f172a;">Reminder: Your Mock Interview is Tomorrow</h2>
+                    <p>Hi <t t-out="object.candidate_id.name"/>, this is a reminder of your upcoming mock interview.</p>
+                    <p>
+                        <strong>Date:</strong> <t t-out="format_datetime(object.scheduled_start, tz=object.env.user.tz, dt_format='dd MMMM y')"/><br/>
+                        <strong>Time:</strong> <t t-out="format_datetime(object.scheduled_start, tz=object.env.user.tz, dt_format='hh:mm a')"/><br/>
+                        <strong>Mode:</strong> <t t-out="dict(object._fields['mode'].selection).get(object.mode)"/>
+                    </p>
+                </div>
+            </field>
+        </record>
+
+        <record id="interview_rescheduled_mail_template" model="mail.template">
+            <field name="name">Placement: Mock Interview Rescheduled</field>
+            <field name="model_id" ref="model_otm_placement_mock_interview"/>
+            <field name="subject">Your Mock Interview Has Been Rescheduled</field>
+            <field name="email_to">{{ object.candidate_id.email }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+                    <h2 style="color:#0f172a;">Your Mock Interview Has Been Rescheduled</h2>
+                    <p>Hi <t t-out="object.candidate_id.name"/>, your mock interview has a new date/time.</p>
+                    <p>
+                        <strong>New Date:</strong> <t t-out="format_datetime(object.scheduled_start, tz=object.env.user.tz, dt_format='dd MMMM y')"/><br/>
+                        <strong>New Time:</strong> <t t-out="format_datetime(object.scheduled_start, tz=object.env.user.tz, dt_format='hh:mm a')"/>
+                    </p>
+                </div>
+            </field>
+        </record>
+
+        <record id="interview_cancelled_mail_template" model="mail.template">
+            <field name="name">Placement: Mock Interview Cancelled</field>
+            <field name="model_id" ref="model_otm_placement_mock_interview"/>
+            <field name="subject">Your Mock Interview Has Been Cancelled</field>
+            <field name="email_to">{{ object.candidate_id.email }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+                    <h2 style="color:#0f172a;">Your Mock Interview Has Been Cancelled</h2>
+                    <p>Hi <t t-out="object.candidate_id.name"/>, your mock interview has been cancelled.
+                       Please book a new slot from your placement portal if you'd like to reschedule.</p>
+                </div>
+            </field>
+        </record>
+
+    </data>
+</odoo>

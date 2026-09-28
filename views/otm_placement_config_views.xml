@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Programs -->
+    <record id="view_otm_placement_program_list" model="ir.ui.view">
+        <field name="name">otm.placement.program.list</field>
+        <field name="model">otm.placement.program</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_otm_placement_program" model="ir.actions.act_window">
+        <field name="name">Programs</field>
+        <field name="res_model">otm.placement.program</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- Support Areas -->
+    <record id="view_otm_placement_support_area_list" model="ir.ui.view">
+        <field name="name">otm.placement.support.area.list</field>
+        <field name="model">otm.placement.support.area</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_otm_placement_support_area" model="ir.actions.act_window">
+        <field name="name">Support Areas</field>
+        <field name="res_model">otm.placement.support.area</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- Interviewers: internal users who can be assigned as interviewers -->
+    <record id="action_otm_placement_interviewers" model="ir.actions.act_window">
+        <field name="name">Interviewers</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('share', '=', False)]</field>
+    </record>
+
+</odoo>
