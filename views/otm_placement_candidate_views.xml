@@ -7,6 +7,30 @@
         <field name="arch" type="xml">
             <form string="Placement Candidate">
                 <header>
+                    <button name="action_set_stage" type="object" string="Mark Reviewed"
+                            class="btn-primary" context="{'target_stage': 'reviewed'}"
+                            invisible="stage != 'new'"/>
+                    <button name="action_set_stage" type="object" string="Mark Contacted"
+                            class="btn-primary" context="{'target_stage': 'contacted'}"
+                            invisible="stage != 'reviewed'"/>
+                    <button name="action_set_stage" type="object" string="Schedule Interview"
+                            class="btn-primary" context="{'target_stage': 'interview_scheduled'}"
+                            invisible="stage != 'contacted'"/>
+                    <button name="action_set_stage" type="object" string="Mark Interview Completed"
+                            class="btn-primary" context="{'target_stage': 'interview_completed'}"
+                            invisible="stage != 'interview_scheduled'"/>
+                    <button name="action_set_stage" type="object" string="Move to Follow-up"
+                            class="btn-primary" context="{'target_stage': 'follow_up'}"
+                            invisible="stage != 'interview_completed'"/>
+                    <button name="action_set_stage" type="object" string="Mark Placement"
+                            class="btn-primary" context="{'target_stage': 'placement'}"
+                            invisible="stage not in ('interview_completed', 'follow_up')"/>
+                    <button name="action_set_stage" type="object" string="Not Interested"
+                            class="btn-secondary" context="{'target_stage': 'not_interested'}"
+                            invisible="stage in ('placement', 'not_interested', 'cancelled')"/>
+                    <button name="action_set_stage" type="object" string="Cancel"
+                            class="btn-secondary" context="{'target_stage': 'cancelled'}"
+                            invisible="stage in ('placement', 'not_interested', 'cancelled')"/>
                     <field name="stage" widget="statusbar"
                            statusbar_visible="new,reviewed,contacted,interview_scheduled,interview_completed,follow_up,placement"/>
                 </header>

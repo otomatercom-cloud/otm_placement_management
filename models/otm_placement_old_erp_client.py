@@ -27,6 +27,20 @@ class _TimeoutTransport(xmlrpc.client.Transport):
         return conn
 
 
+def _normalize_base_url(url):
+    """Accept a URL typed with or without a scheme (e.g. 'erp.example.com',
+    'erp.example.com/', 'http://erp.example.com') and always return a clean
+    'https://host' (or 'http://host' if the user explicitly typed http://),
+    with no trailing slash. xmlrpc.client raises a cryptic 'unsupported
+    XML-RPC protocol' error if given a URL with no scheme at all."""
+    url = (url or "").strip().rstrip("/")
+    if not url:
+        return url
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    return url
+
+
 def _server_proxy(url, timeout=CONNECT_TIMEOUT):
     transport = _TimeoutTransport(timeout, use_https=url.startswith("https"))
     return xmlrpc.client.ServerProxy(url, transport=transport, allow_none=True)
@@ -58,7 +72,8 @@ class OtmPlacementOldErpClient(models.AbstractModel):
         return settings
 
     def _authenticate(self, settings):
-        common = _server_proxy("%s/xmlrpc/2/common" % settings.url.rstrip("/"))
+        base_url = _normalize_base_url(settings.url)
+        common = _server_proxy("%s/xmlrpc/2/common" % base_url)
         uid = common.authenticate(settings.database, settings.username, settings.api_key, {})
         return uid
 
@@ -125,7 +140,7 @@ class OtmPlacementOldErpClient(models.AbstractModel):
                     "note": "Could not authenticate with the old ERP. Check the connection settings.",
                 }
 
-            models_proxy = _server_proxy("%s/xmlrpc/2/object" % settings.url.rstrip("/"))
+            models_proxy = _server_proxy("%s/xmlrpc/2/object" % _normalize_base_url(settings.url))
             leads = models_proxy.execute_kw(
                 settings.database, uid, settings.api_key,
                 "leads.logic", "search_read",

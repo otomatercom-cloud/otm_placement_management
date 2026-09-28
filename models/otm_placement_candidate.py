@@ -170,6 +170,16 @@ class OtmPlacementCandidate(models.Model):
             "context": {"default_candidate_id": self.id},
         }
 
+    def action_set_stage(self):
+        """Generic stage-transition action. The target stage is passed via
+        the calling button's context (context="{'target_stage': 'reviewed'}"),
+        so one method backs every 'Mark as ...' header button."""
+        target_stage = self.env.context.get("target_stage")
+        valid_stages = dict(self._fields["stage"].selection)
+        if target_stage in valid_stages:
+            self.write({"stage": target_stage})
+        return True
+
     def action_check_old_erp_status(self):
         Client = self.env["otm.placement.old.erp.client"]
         valid_statuses = dict(self._fields["erp_check_status"].selection)
