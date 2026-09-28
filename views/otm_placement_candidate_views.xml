@@ -66,14 +66,14 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Employment">
+                        <page string="Employment" name="page_employment">
                             <group>
                                 <field name="employment_status"/>
                                 <field name="company_name"/>
                                 <field name="designation"/>
                             </group>
                         </page>
-                        <page string="Interview">
+                        <page string="Interview" name="page_interview">
                             <group>
                                 <field name="interview_preference"/>
                             </group>
@@ -87,13 +87,13 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Support">
+                        <page string="Support" name="page_support">
                             <group>
                                 <field name="support_area_ids" widget="many2many_tags"/>
                                 <field name="additional_support"/>
                             </group>
                         </page>
-                        <page string="Placement">
+                        <page string="Placement" name="page_placement">
                             <field name="placement_record_ids" context="{'default_candidate_id': id}">
                                 <list>
                                     <field name="company_name"/>
@@ -104,7 +104,7 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Old ERP / Student Check">
+                        <page string="Old ERP / Student Check" name="page_old_erp_check">
                             <div class="d-flex align-items-center mb-3" style="gap: 12px;">
                                 <button name="action_check_old_erp_status" type="object"
                                         string="Check Old ERP" class="btn-secondary"
@@ -121,7 +121,7 @@
                                 <field name="erp_checked_on" readonly="1"/>
                             </group>
                         </page>
-                        <page string="Internal Notes">
+                        <page string="Internal Notes" name="page_internal_notes">
                             <field name="registration_date" readonly="1"/>
                         </page>
                     </notebook>

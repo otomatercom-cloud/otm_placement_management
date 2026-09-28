@@ -140,6 +140,26 @@ class OtmPlacementOldErpClient(models.AbstractModel):
             _logger.exception("Old ERP search_count failed for model=%s", model)
             return None
 
+    def create_record(self, model, vals):
+        """Generic passthrough to create a record on the old ERP (used by
+        otm_career_portal's referral -> lead sync). Returns the new
+        record's id, or None (never raises) if the old ERP isn't
+        configured/reachable or the create call itself fails."""
+        settings = self._get_settings()
+        if not settings:
+            return None
+        try:
+            uid = self._authenticate(settings)
+            if not uid:
+                return None
+            models_proxy = _server_proxy("%s/xmlrpc/2/object" % _normalize_base_url(settings.url))
+            return models_proxy.execute_kw(
+                settings.database, uid, settings.api_key, model, "create", [vals],
+            )
+        except Exception:
+            _logger.exception("Old ERP create failed for model=%s", model)
+            return None
+
     def check_student_status(self, phone, email):
         """Look up `phone`/`email` in the old ERP's leads.logic model.
 
