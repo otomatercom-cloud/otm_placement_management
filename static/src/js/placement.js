@@ -165,8 +165,17 @@
             state.candidateId = data.candidate_id;
             state.token = data.token;
             state.mode = data.mode;
-            loadSlots();
-            goToStep(6);
+            if (data.mode === "online" || data.mode === "offline") {
+                loadSlots();
+                goToStep(6);
+            } else {
+                // "Not Right Now" was chosen: registration is complete on
+                // its own, no mock interview to book. Go straight to the
+                // same confirmation page a completed booking would show;
+                // it already renders a "Registration Received" message
+                // when the candidate has no interview yet.
+                window.location.href = "/placement/booking/success/" + data.token;
+            }
         }).catch(function () {
             setLoading(false);
             showAlert("Something went wrong. Please try again.");

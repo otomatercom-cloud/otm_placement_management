@@ -128,7 +128,8 @@
 
                         <!-- STEP 5 -->
                         <div class="otm-step d-none" data-step="5">
-                            <h2 class="otm-step-title">How would you prefer your mock interview?</h2>
+                            <h2 class="otm-step-title">Would you like a mock interview?</h2>
+                            <p class="otm-step-sub">Optional — you can register now and book a slot later if you're not ready to pick one yet.</p>
                             <small class="otm-error" id="err_interview_preference"></small>
                             <div class="otm-mode-grid">
                                 <label class="otm-mode-card" data-mode="online">
@@ -142,6 +143,12 @@
                                     <span class="otm-mode-icon">🏢</span>
                                     <strong>Offline</strong>
                                     <span>Attend at our centre</span>
+                                </label>
+                                <label class="otm-mode-card" data-mode="skip">
+                                    <input type="radio" name="otm_mode" value="skip"/>
+                                    <span class="otm-mode-icon">🕒</span>
+                                    <strong>Not Right Now</strong>
+                                    <span>Register only, decide later</span>
                                 </label>
                             </div>
                         </div>

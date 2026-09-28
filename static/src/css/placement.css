@@ -130,7 +130,8 @@
 
 .otm-step { animation: otm-fade-in .25s ease; margin-top: 44px; }
 @keyframes otm-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-.otm-step-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 18px; }
+.otm-step-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
+.otm-step-sub { font-size: 13px; color: var(--otm-text-muted); margin-bottom: 18px; }
 
 .otm-field { margin-bottom: 18px; }
 .otm-field label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: var(--otm-text); }
@@ -144,7 +145,9 @@
 .otm-checkbox-grid, .otm-mode-grid {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 18px;
 }
-@media (max-width: 480px) { .otm-checkbox-grid, .otm-mode-grid { grid-template-columns: 1fr; } }
+.otm-mode-grid { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 600px) { .otm-mode-grid { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .otm-checkbox-grid { grid-template-columns: 1fr; } }
 .otm-checkbox-card {
     border: 1.5px solid var(--otm-border); border-radius: 12px; padding: 14px;
     display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px;

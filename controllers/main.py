@@ -66,7 +66,12 @@ class OtmPlacementMainController(http.Controller):
         phone = (data.get("phone") or "").strip()
         email = (data.get("email") or "").strip()
         program_id = _to_int(data.get("program_id"))
-        interview_preference = data.get("interview_preference")
+        # Mock interview booking is optional: a candidate may register
+        # without choosing Online/Offline at all ("Not right now"). Only
+        # "online"/"offline" are stored; anything else (skipped, missing)
+        # is treated as no preference yet, not a validation error.
+        raw_preference = data.get("interview_preference")
+        interview_preference = raw_preference if raw_preference in ("online", "offline") else False
 
         errors = {}
         if not name:
@@ -77,8 +82,6 @@ class OtmPlacementMainController(http.Controller):
             errors["email"] = "Please enter a valid email address."
         if not program_id:
             errors["program_id"] = "Please select your program."
-        if interview_preference not in ("online", "offline"):
-            errors["interview_preference"] = "Please select an interview preference."
 
         if errors:
             return _json_response({"ok": False, "errors": errors}, 400)

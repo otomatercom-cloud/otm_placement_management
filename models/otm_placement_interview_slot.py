@@ -8,7 +8,11 @@ class OtmPlacementInterviewSlot(models.Model):
     _order = "start_datetime"
 
     name = fields.Char(string="Slot", compute="_compute_name", store=True)
-    date = fields.Date(required=True, default=fields.Date.context_today)
+    date = fields.Date(
+        compute="_compute_date", store=True,
+        help="Derived from Start so it can never drift out of sync with it "
+             "(the public booking page filters slots by this field).",
+    )
     start_datetime = fields.Datetime(string="Start", required=True)
     end_datetime = fields.Datetime(string="End", required=True)
     mode = fields.Selection(
@@ -55,6 +59,16 @@ class OtmPlacementInterviewSlot(models.Model):
     _booked_not_negative = models.Constraint(
         "check(booked_count >= 0)", "Booked count cannot be negative."
     )
+
+    @api.depends("start_datetime")
+    def _compute_date(self):
+        for slot in self:
+            if slot.start_datetime:
+                slot.date = fields.Datetime.context_timestamp(
+                    slot, slot.start_datetime
+                ).date()
+            else:
+                slot.date = False
 
     @api.depends("date", "start_datetime", "end_datetime", "mode")
     def _compute_name(self):

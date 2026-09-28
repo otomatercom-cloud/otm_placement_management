@@ -12,9 +12,9 @@
                     </div>
                     <group>
                         <group>
-                            <field name="date"/>
                             <field name="start_datetime"/>
                             <field name="end_datetime"/>
+                            <field name="date" readonly="1"/>
                             <field name="mode"/>
                             <field name="interviewer_id"/>
                         </group>
