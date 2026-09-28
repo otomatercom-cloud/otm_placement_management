@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
+import logging
+import threading
 import uuid
 from datetime import date
 
-from odoo import api, fields, models
+from odoo import SUPERUSER_ID, api, fields, models
+from odoo.modules.registry import Registry
+
+_logger = logging.getLogger(__name__)
 
 
 class OtmPlacementCandidate(models.Model):
@@ -157,7 +162,9 @@ class OtmPlacementCandidate(models.Model):
                     )
                     or "New"
                 )
-        return super().create(vals_list)
+        candidates = super().create(vals_list)
+        candidates._trigger_old_erp_check_async()
+        return candidates
 
     def action_view_mock_interviews(self):
         self.ensure_one()
@@ -180,17 +187,69 @@ class OtmPlacementCandidate(models.Model):
             self.write({"stage": target_stage})
         return True
 
+    def _apply_old_erp_check_result(self, result):
+        self.ensure_one()
+        valid_statuses = dict(self._fields["erp_check_status"].selection)
+        status = result.get("status")
+        self.write({
+            "erp_check_status": status if status in valid_statuses else "unavailable",
+            "erp_check_note": result.get("note"),
+            "erp_checked_on": fields.Datetime.now(),
+        })
+
+    def _trigger_old_erp_check_async(self):
+        """Kick off the old-ERP check in a background thread right after a
+        candidate is created (public registration or backend), so the
+        request that created the candidate never waits on a third-party
+        server that could be slow or unreachable. Skipped entirely if the
+        old-ERP connection isn't configured/enabled, so there's no overhead
+        for clients who never set it up.
+
+        The thread is only started via cr.postcommit (after the CURRENT
+        transaction actually commits) rather than immediately: the
+        background thread opens its own DB cursor/connection, which can't
+        see a row from a transaction that hasn't committed yet. Starting
+        the thread immediately caused a real MissingError race the first
+        time many candidates were created in one transaction (the LPMS
+        bulk-import wizard) — the background cursor tried to read a
+        candidate the outer transaction hadn't committed yet.
+        """
+        Settings = self.env["otm.placement.old.erp.settings"].sudo()
+        settings = Settings.search([], limit=1)
+        if not settings or not settings.active:
+            return
+
+        candidate_ids = self.ids
+        db_name = self.env.cr.dbname
+        if not candidate_ids:
+            return
+
+        def run():
+            try:
+                registry = Registry(db_name)
+                with registry.cursor() as cr:
+                    env = api.Environment(cr, SUPERUSER_ID, {})
+                    candidates = env[self._name].browse(candidate_ids)
+                    Client = env["otm.placement.old.erp.client"]
+                    for candidate in candidates:
+                        try:
+                            result = Client.check_student_status(candidate.phone, candidate.email)
+                            candidate._apply_old_erp_check_result(result)
+                        except Exception:
+                            _logger.exception(
+                                "Background old-ERP check failed for candidate %s", candidate.id
+                            )
+                    cr.commit()
+            except Exception:
+                _logger.exception("Background old-ERP check thread failed to start/run")
+
+        self.env.cr.postcommit.add(lambda: threading.Thread(target=run, daemon=True).start())
+
     def action_check_old_erp_status(self):
         Client = self.env["otm.placement.old.erp.client"]
-        valid_statuses = dict(self._fields["erp_check_status"].selection)
         for candidate in self:
             result = Client.check_student_status(candidate.phone, candidate.email)
-            status = result.get("status")
-            candidate.write({
-                "erp_check_status": status if status in valid_statuses else "unavailable",
-                "erp_check_note": result.get("note"),
-                "erp_checked_on": fields.Datetime.now(),
-            })
+            candidate._apply_old_erp_check_result(result)
         if len(self) == 1:
             return {
                 "type": "ir.actions.client",

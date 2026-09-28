@@ -52,5 +52,7 @@
               parent="menu_otm_placement_configuration" action="action_otm_placement_interviewers" sequence="30"/>
     <menuitem id="menu_otm_placement_config_old_erp" name="Old ERP Connection"
               parent="menu_otm_placement_configuration" action="action_otm_placement_old_erp_settings" sequence="40"/>
+    <menuitem id="menu_otm_placement_config_lpms_import" name="Import Candidates from Old LPMS"
+              parent="menu_otm_placement_configuration" action="action_otm_placement_lpms_import_wizard" sequence="50"/>
 
 </odoo>

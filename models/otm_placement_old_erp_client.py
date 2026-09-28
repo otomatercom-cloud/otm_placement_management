@@ -98,6 +98,48 @@ class OtmPlacementOldErpClient(models.AbstractModel):
             return {"ok": False, "error": "Authentication failed — check username/API key."}
         return {"ok": True, "uid": uid}
 
+    def search_read(self, model, domain, fields_list, limit=None, offset=0, order=None):
+        """Generic passthrough to the old ERP's search_read for any model
+        (used for one-off data pulls/imports, e.g. LPMS candidates).
+        Returns None (never raises) if the ERP isn't configured/reachable,
+        so callers can distinguish 'no data found' ([]) from 'could not
+        reach the old ERP' (None)."""
+        settings = self._get_settings()
+        if not settings:
+            return None
+        kwargs = {"fields": fields_list, "offset": offset}
+        if limit is not None:
+            kwargs["limit"] = limit
+        if order:
+            kwargs["order"] = order
+        try:
+            uid = self._authenticate(settings)
+            if not uid:
+                return None
+            models_proxy = _server_proxy("%s/xmlrpc/2/object" % _normalize_base_url(settings.url))
+            return models_proxy.execute_kw(
+                settings.database, uid, settings.api_key, model, "search_read", [domain], kwargs,
+            )
+        except Exception:
+            _logger.exception("Old ERP search_read failed for model=%s", model)
+            return None
+
+    def search_count(self, model, domain):
+        settings = self._get_settings()
+        if not settings:
+            return None
+        try:
+            uid = self._authenticate(settings)
+            if not uid:
+                return None
+            models_proxy = _server_proxy("%s/xmlrpc/2/object" % _normalize_base_url(settings.url))
+            return models_proxy.execute_kw(
+                settings.database, uid, settings.api_key, model, "search_count", [domain],
+            )
+        except Exception:
+            _logger.exception("Old ERP search_count failed for model=%s", model)
+            return None
+
     def check_student_status(self, phone, email):
         """Look up `phone`/`email` in the old ERP's leads.logic model.
 

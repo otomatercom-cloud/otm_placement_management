@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_otm_placement_lpms_import_wizard_form" model="ir.ui.view">
+        <field name="name">otm.placement.lpms.import.wizard.form</field>
+        <field name="model">otm.placement.lpms.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Candidates from Old LPMS">
+                <div class="alert alert-info" role="alert">
+                    Pulls candidates from the old LPMS module (lpms.access.application) on your
+                    Odoo 17 ERP, over the same connection configured under Placement &gt;
+                    Configuration &gt; Old ERP Connection. A candidate already registered here
+                    (matching phone + email) is always skipped, never overwritten.
+                </div>
+                <group>
+                    <field name="total_found" readonly="1" invisible="not total_found and state == 'draft'"/>
+                    <field name="imported_count" readonly="1" invisible="state != 'done'"/>
+                    <field name="skipped_count" readonly="1" invisible="state != 'done'"/>
+                    <field name="error_count" readonly="1" invisible="state != 'done'"/>
+                    <field name="created_program_count" readonly="1" invisible="state != 'done'"/>
+                </group>
+                <field name="log" readonly="1" widget="text" invisible="not log"/>
+                <footer>
+                    <button name="action_check_count" type="object"
+                            string="Check How Many" class="btn-secondary"
+                            invisible="state == 'done'"/>
+                    <button name="action_run_import" type="object"
+                            string="Run Import" class="btn-primary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_otm_placement_lpms_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import Candidates from Old LPMS</field>
+        <field name="res_model">otm.placement.lpms.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
