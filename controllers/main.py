@@ -110,9 +110,21 @@ class OtmPlacementMainController(http.Controller):
             vals["company_name"] = data.get("company_name") or False
             vals["designation"] = data.get("designation") or False
 
+        # Same phone+email as an existing registration (e.g. the candidate
+        # re-submitted after a refresh, or double-clicked Continue): update
+        # that record and carry on, rather than hitting the unique
+        # constraint and surfacing a raw 500 to the visitor.
+        Candidate = request.env["otm.placement.candidate"].sudo()
+        candidate = Candidate.search(
+            [("phone", "=", phone), ("email", "=", email)], limit=1
+        )
         try:
-            candidate = request.env["otm.placement.candidate"].sudo().create(vals)
+            if candidate:
+                candidate.write(vals)
+            else:
+                candidate = Candidate.create(vals)
         except Exception:
+            request.env.cr.rollback()
             _logger.exception("Placement registration failed")
             return _json_response(
                 {"ok": False, "error": "Something went wrong. Please try again."}, 500

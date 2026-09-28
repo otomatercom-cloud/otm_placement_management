@@ -1,0 +1,107 @@
+.otm-dash {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.otm-dash-header h2 {
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+.otm-dash-loading, .otm-dash-error {
+    padding: 40px;
+    text-align: center;
+    color: #64748b;
+}
+.otm-dash-error { color: #dc2626; }
+
+.otm-dash-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+}
+.otm-dash-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: box-shadow .15s ease, transform .15s ease;
+}
+.otm-dash-card:hover {
+    box-shadow: 0 8px 20px rgba(15,23,42,.1);
+    transform: translateY(-2px);
+}
+.otm-dash-card-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+.otm-dash-card-label {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 4px;
+}
+.otm-dash-card-highlight {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    border-color: transparent;
+}
+.otm-dash-card-highlight .otm-dash-card-value,
+.otm-dash-card-highlight .otm-dash-card-label {
+    color: #fff;
+}
+
+.otm-dash-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 18px;
+}
+.otm-dash-chart {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px 20px;
+}
+.otm-dash-chart h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #0f172a;
+}
+.otm-dash-empty {
+    color: #94a3b8;
+    font-size: 13px;
+    padding: 10px 0;
+}
+.otm-dash-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+.otm-dash-bar-label {
+    flex: 0 0 130px;
+    color: #334155;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.otm-dash-bar-track {
+    flex: 1 1 auto;
+    background: #f1f5f9;
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+}
+.otm-dash-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width .3s ease;
+}
+.otm-dash-bar-count {
+    flex: 0 0 28px;
+    text-align: right;
+    font-weight: 600;
+    color: #0f172a;
+}

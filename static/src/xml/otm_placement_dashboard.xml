@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="otm_placement_management.Dashboard" owl="1">
+        <div class="otm-dash">
+            <div class="otm-dash-header">
+                <h2>Placement Dashboard</h2>
+            </div>
+
+            <div t-if="state.loading" class="otm-dash-loading">
+                <span class="fa fa-spinner fa-spin"/> Loading dashboard…
+            </div>
+
+            <div t-elif="state.error" class="otm-dash-error">
+                <span t-esc="state.error"/>
+            </div>
+
+            <t t-else="">
+                <div class="otm-dash-cards">
+                    <div class="otm-dash-card" t-on-click="() => this.openCandidates([])">
+                        <div class="otm-dash-card-value" t-esc="state.cards.totalCandidates"/>
+                        <div class="otm-dash-card-label">Total Candidates</div>
+                    </div>
+                    <div class="otm-dash-card" t-on-click="() => this.openCandidates([['employment_status', '=', 'jobseeker']])">
+                        <div class="otm-dash-card-value" t-esc="state.cards.jobseekers"/>
+                        <div class="otm-dash-card-label">Jobseekers</div>
+                    </div>
+                    <div class="otm-dash-card" t-on-click="() => this.openCandidates([['employment_status', '=', 'employed']])">
+                        <div class="otm-dash-card-value" t-esc="state.cards.employed"/>
+                        <div class="otm-dash-card-label">Employed</div>
+                    </div>
+                    <div class="otm-dash-card" t-on-click="() => this.openCandidates([['employment_status', '=', 'intern']])">
+                        <div class="otm-dash-card-value" t-esc="state.cards.interns"/>
+                        <div class="otm-dash-card-label">Interns</div>
+                    </div>
+                    <div class="otm-dash-card" t-on-click="() => this.openInterviews([['status', 'in', ['scheduled', 'confirmed']]])">
+                        <div class="otm-dash-card-value" t-esc="state.cards.upcomingInterviews"/>
+                        <div class="otm-dash-card-label">Upcoming Interviews</div>
+                    </div>
+                    <div class="otm-dash-card" t-on-click="() => this.openInterviews([['status', '=', 'completed']])">
+                        <div class="otm-dash-card-value" t-esc="state.cards.completedInterviews"/>
+                        <div class="otm-dash-card-label">Completed Interviews</div>
+                    </div>
+                    <div class="otm-dash-card otm-dash-card-highlight" t-on-click="() => this.openCandidates([['stage', '=', 'placement']])">
+                        <div class="otm-dash-card-value" t-esc="state.cards.placed"/>
+                        <div class="otm-dash-card-label">Placed Candidates</div>
+                    </div>
+                </div>
+
+                <div class="otm-dash-charts">
+                    <div class="otm-dash-chart">
+                        <h3>Candidates by Program</h3>
+                        <div t-if="!state.byProgram.length" class="otm-dash-empty">No data yet.</div>
+                        <div t-foreach="state.byProgram" t-as="row" t-key="row.key" class="otm-dash-bar-row">
+                            <span class="otm-dash-bar-label" t-esc="row.label"/>
+                            <div class="otm-dash-bar-track">
+                                <div class="otm-dash-bar-fill" t-attf-style="width: {{row.pct}}%; background: {{row.color}};"/>
+                            </div>
+                            <span class="otm-dash-bar-count" t-esc="row.count"/>
+                        </div>
+                    </div>
+
+                    <div class="otm-dash-chart">
+                        <h3>Employment Status</h3>
+                        <div t-if="!state.byEmployment.length" class="otm-dash-empty">No data yet.</div>
+                        <div t-foreach="state.byEmployment" t-as="row" t-key="row.key" class="otm-dash-bar-row">
+                            <span class="otm-dash-bar-label" t-esc="row.label"/>
+                            <div class="otm-dash-bar-track">
+                                <div class="otm-dash-bar-fill" t-attf-style="width: {{row.pct}}%; background: {{row.color}};"/>
+                            </div>
+                            <span class="otm-dash-bar-count" t-esc="row.count"/>
+                        </div>
+                    </div>
+
+                    <div class="otm-dash-chart">
+                        <h3>Qualification Status</h3>
+                        <div t-if="!state.byQualification.length" class="otm-dash-empty">No data yet.</div>
+                        <div t-foreach="state.byQualification" t-as="row" t-key="row.key" class="otm-dash-bar-row">
+                            <span class="otm-dash-bar-label" t-esc="row.label"/>
+                            <div class="otm-dash-bar-track">
+                                <div class="otm-dash-bar-fill" t-attf-style="width: {{row.pct}}%; background: {{row.color}};"/>
+                            </div>
+                            <span class="otm-dash-bar-count" t-esc="row.count"/>
+                        </div>
+                    </div>
+
+                    <div class="otm-dash-chart">
+                        <h3>Online vs Offline</h3>
+                        <div t-if="!state.byMode.length" class="otm-dash-empty">No data yet.</div>
+                        <div t-foreach="state.byMode" t-as="row" t-key="row.key" class="otm-dash-bar-row">
+                            <span class="otm-dash-bar-label" t-esc="row.label"/>
+                            <div class="otm-dash-bar-track">
+                                <div class="otm-dash-bar-fill" t-attf-style="width: {{row.pct}}%; background: {{row.color}};"/>
+                            </div>
+                            <span class="otm-dash-bar-count" t-esc="row.count"/>
+                        </div>
+                    </div>
+
+                    <div class="otm-dash-chart">
+                        <h3>Interview Status</h3>
+                        <div t-if="!state.byInterviewStatus.length" class="otm-dash-empty">No data yet.</div>
+                        <div t-foreach="state.byInterviewStatus" t-as="row" t-key="row.key" class="otm-dash-bar-row">
+                            <span class="otm-dash-bar-label" t-esc="row.label"/>
+                            <div class="otm-dash-bar-track">
+                                <div class="otm-dash-bar-fill" t-attf-style="width: {{row.pct}}%; background: {{row.color}};"/>
+                            </div>
+                            <span class="otm-dash-bar-count" t-esc="row.count"/>
+                        </div>
+                    </div>
+
+                    <div class="otm-dash-chart">
+                        <h3>Placement Status</h3>
+                        <div t-if="!state.byPlacementStatus.length" class="otm-dash-empty">No data yet.</div>
+                        <div t-foreach="state.byPlacementStatus" t-as="row" t-key="row.key" class="otm-dash-bar-row">
+                            <span class="otm-dash-bar-label" t-esc="row.label"/>
+                            <div class="otm-dash-bar-track">
+                                <div class="otm-dash-bar-fill" t-attf-style="width: {{row.pct}}%; background: {{row.color}};"/>
+                            </div>
+                            <span class="otm-dash-bar-count" t-esc="row.count"/>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

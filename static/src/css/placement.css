@@ -2,7 +2,8 @@
 .otm-placement-app {
     --otm-primary: #155e75;
     --otm-primary-dark: #0f3f4f;
-    --otm-accent: #0ea5e9;
+    --otm-accent: #16a34a;
+    --otm-accent-dark: #15803d;
     --otm-bg: #f8fafc;
     --otm-card-bg: #ffffff;
     --otm-text: #0f172a;
@@ -31,10 +32,10 @@
     margin-bottom: 20px;
 }
 .otm-hero-title {
-    font-size: 2.5rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
     font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 16px;
+    line-height: 1.25;
+    margin-bottom: 14px;
 }
 .otm-hero-sub {
     font-size: 1.05rem;
@@ -42,24 +43,45 @@
     max-width: 560px;
     margin: 0 auto 28px;
 }
-.otm-btn-primary {
-    background: var(--otm-accent);
+/* Scoped + !important so the website theme's own .btn rules (which load
+   after this bundle and would otherwise flash white / lose the color)
+   can never win on specificity or load order. */
+.otm-placement-app .btn.otm-btn-primary {
+    background: var(--otm-accent) !important;
     color: #fff !important;
-    border: none;
+    border: none !important;
     border-radius: 10px;
     padding: 12px 28px;
     font-weight: 600;
-    transition: transform .15s ease, box-shadow .15s ease;
-    box-shadow: 0 8px 20px rgba(14,165,233,.35);
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    box-shadow: 0 8px 20px rgba(22,163,74,.35);
 }
-.otm-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(14,165,233,.45); }
-.otm-btn-outline {
-    background: transparent;
-    border: 1px solid var(--otm-border);
-    color: var(--otm-text);
+.otm-placement-app .btn.otm-btn-primary:hover,
+.otm-placement-app .btn.otm-btn-primary:focus,
+.otm-placement-app .btn.otm-btn-primary:active {
+    background: var(--otm-accent-dark) !important;
+    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(22,163,74,.45);
+}
+.otm-placement-app .btn.otm-btn-primary:disabled {
+    background: var(--otm-accent) !important;
+    opacity: .7;
+    transform: none;
+}
+.otm-placement-app .btn.otm-btn-outline {
+    background: #fff !important;
+    border: 1.5px solid var(--otm-border) !important;
+    color: var(--otm-text) !important;
     border-radius: 10px;
     padding: 12px 24px;
     font-weight: 600;
+}
+.otm-placement-app .btn.otm-btn-outline:hover,
+.otm-placement-app .btn.otm-btn-outline:focus {
+    background: #f8fafc !important;
+    color: var(--otm-text) !important;
+    border-color: var(--otm-accent) !important;
 }
 .otm-btn-lg { font-size: 1.05rem; padding: 14px 34px; }
 
@@ -73,7 +95,6 @@
     padding: 32px 28px 28px;
 }
 @media (max-width: 576px) {
-    .otm-hero-title { font-size: 1.8rem; }
     .otm-card { padding: 22px 16px 18px; border-radius: 14px; }
 }
 

@@ -4,7 +4,7 @@
     <menuitem id="menu_otm_placement_root" name="Placement" sequence="45"/>
 
     <menuitem id="menu_otm_placement_dashboard" name="Dashboard"
-              parent="menu_otm_placement_root" action="action_otm_placement_dashboard" sequence="10"/>
+              parent="menu_otm_placement_root" action="action_otm_placement_owl_dashboard" sequence="10"/>
 
     <menuitem id="menu_otm_placement_candidate" name="Candidates"
               parent="menu_otm_placement_root" action="action_otm_placement_candidate" sequence="20"/>
@@ -24,6 +24,8 @@
     <menuitem id="menu_otm_placement_reporting" name="Reporting"
               parent="menu_otm_placement_root" sequence="70"
               groups="otm_placement_management.group_placement_manager"/>
+    <menuitem id="menu_otm_placement_report_pivot" name="Pivot Analysis"
+              parent="menu_otm_placement_reporting" action="action_otm_placement_dashboard" sequence="5"/>
     <menuitem id="menu_otm_placement_report_employment" name="By Employment Status"
               parent="menu_otm_placement_reporting" action="action_otm_placement_candidates_by_employment" sequence="10"/>
     <menuitem id="menu_otm_placement_report_qualification" name="By Qualification Status"

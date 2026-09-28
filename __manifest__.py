@@ -40,6 +40,11 @@ Placement & Mock Interview Management (Otomater)
             "otm_placement_management/static/src/css/placement.css",
             "otm_placement_management/static/src/js/placement.js",
         ],
+        "web.assets_backend": [
+            "otm_placement_management/static/src/css/otm_placement_dashboard.css",
+            "otm_placement_management/static/src/js/dashboard/otm_placement_dashboard.js",
+            "otm_placement_management/static/src/xml/otm_placement_dashboard.xml",
+        ],
     },
     "installable": True,
     "application": True,
