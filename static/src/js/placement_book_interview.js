@@ -17,6 +17,11 @@
         selectedDate: null,
         selectedSlot: null,
         slotsByDate: {},
+        // "book" = normal first-time/self-service booking (/placement/book).
+        // "reattempt" = picking a slot to submit with a re-attempt request
+        // (/placement/book-interview/request-reattempt) - not booked yet,
+        // just sent for placement-manager approval.
+        flow: "book",
     };
 
     var csrfToken = document.getElementById("otm_bi_csrf_token").value;
@@ -82,6 +87,10 @@
             }
             state.candidateId = data.candidate_id;
             state.token = data.token;
+            state.flow = "book";
+            document.getElementById("otm_bi_slots_title").textContent = "Choose Your Mock Interview Slot";
+            document.getElementById("otm_bi_summary_title").textContent = "Booking Summary";
+            document.getElementById("otm_bi_btn_confirm").innerHTML = "Confirm Booking";
             if (data.status === "scheduled") {
                 document.getElementById("otm_bi_already_name").textContent = data.name;
                 document.getElementById("otm_bi_view_existing").href = data.success_url;
@@ -103,26 +112,21 @@
         });
     });
 
-    // --- STEP 1b: request re-attempt permission -------------------------
+    // --- STEP 1b: pick a slot for a re-attempt request -------------------
+    // Reuses the same mode -> slots -> summary steps as a normal booking;
+    // only the final confirm step (below) branches on state.flow to POST
+    // to request-reattempt instead of book, since this isn't a confirmed
+    // booking yet - it's a slot choice sent for placement-manager approval.
     var reattemptBtn = document.getElementById("otm_bi_btn_request_reattempt");
     if (reattemptBtn) {
         reattemptBtn.addEventListener("click", function () {
-            setButtonLoading(reattemptBtn, true, "Request Re-attempt");
-            postJSON("/placement/book-interview/request-reattempt", {
-                csrf_token: csrfToken, candidate_id: state.candidateId, token: state.token,
-            }).then(function (data) {
-                setButtonLoading(reattemptBtn, false, "Request Re-attempt");
-                if (!data.ok) {
-                    showAlert(data.error || "Something went wrong. Please try again.");
-                    return;
-                }
-                document.getElementById("otm_bi_processing_name").textContent =
-                    document.getElementById("otm_bi_completed_name").textContent;
-                goToStep("processing");
-            }).catch(function () {
-                setButtonLoading(reattemptBtn, false, "Request Re-attempt");
-                showAlert("Something went wrong. Please try again.");
-            });
+            state.flow = "reattempt";
+            document.getElementById("otm_bi_slots_title").textContent =
+                "Choose Your Preferred Slot";
+            document.getElementById("otm_bi_summary_title").textContent =
+                "Re-attempt Request Summary";
+            document.getElementById("otm_bi_btn_confirm").innerHTML = "Send for Approval";
+            goToStep("mode");
         });
     }
 
@@ -248,20 +252,43 @@
 
     document.getElementById("otm_bi_btn_confirm").addEventListener("click", function () {
         var btn = document.getElementById("otm_bi_btn_confirm");
-        setButtonLoading(btn, true, "Confirm Booking");
-        postJSON("/placement/book", {
+        var isReattempt = state.flow === "reattempt";
+        var idleLabel = isReattempt ? "Send for Approval" : "Confirm Booking";
+        var url = isReattempt
+            ? "/placement/book-interview/request-reattempt"
+            : "/placement/book";
+        setButtonLoading(btn, true, idleLabel);
+        postJSON(url, {
             csrf_token: csrfToken,
             candidate_id: state.candidateId,
             token: state.token,
             slot_id: state.selectedSlot.id,
         }).then(function (data) {
-            setButtonLoading(btn, false, "Confirm Booking");
+            setButtonLoading(btn, false, idleLabel);
             if (!data.ok) {
                 showAlert(data.error || "Sorry, this slot was just booked by another candidate. Please select another slot.");
                 loadSlots();
                 goToStep("slots");
                 return;
             }
+            if (isReattempt) {
+                document.getElementById("otm_bi_success_icon").textContent = "⏳";
+                document.getElementById("otm_bi_success_title").textContent =
+                    "Your Slot Request Has Been Sent";
+                var reqEl = document.getElementById("otm_bi_success_summary");
+                var reqHtml = "";
+                reqHtml += "<div><strong>Requested Date:</strong> " + state.selectedSlot.date_label + "</div>";
+                reqHtml += "<div><strong>Requested Time:</strong> " + state.selectedSlot.time_label + "</div>";
+                reqHtml += "<div><strong>Mode:</strong> " + (state.mode === "online" ? "Online" : "Offline") + "</div>";
+                reqHtml += '<p class="text-muted mt-2">Our placement team will review this and confirm your slot.</p>';
+                reqEl.innerHTML = reqHtml;
+                document.getElementById("otm_bi_view_booking").classList.add("d-none");
+                goToStep("success");
+                return;
+            }
+            document.getElementById("otm_bi_success_icon").textContent = "🎉";
+            document.getElementById("otm_bi_success_title").textContent =
+                "Mock Interview Booked Successfully!";
             var el = document.getElementById("otm_bi_success_summary");
             var html = "";
             html += "<div><strong>Date:</strong> " + data.date_label + "</div>";
@@ -269,10 +296,12 @@
             html += "<div><strong>Mode:</strong> " + (data.mode === "online" ? "Online" : "Offline") + "</div>";
             if (data.venue) { html += "<div><strong>Venue:</strong> " + escapeHtml(data.venue) + "</div>"; }
             el.innerHTML = html;
-            document.getElementById("otm_bi_view_booking").href = data.success_url;
+            var viewBtn = document.getElementById("otm_bi_view_booking");
+            viewBtn.href = data.success_url;
+            viewBtn.classList.remove("d-none");
             goToStep("success");
         }).catch(function () {
-            setButtonLoading(btn, false, "Confirm Booking");
+            setButtonLoading(btn, false, idleLabel);
             showAlert("Something went wrong. Please try again.");
         });
     });

@@ -17,6 +17,8 @@
                             <field name="date" readonly="1"/>
                             <field name="mode"/>
                             <field name="interviewer_id"/>
+                            <field name="external_interviewer_name" placeholder="e.g. a guest interviewer not in the system"/>
+                            <field name="external_interviewer_contact" invisible="not external_interviewer_name" placeholder="Phone or email"/>
                         </group>
                         <group>
                             <field name="capacity"/>
@@ -58,7 +60,7 @@
                 <field name="date"/>
                 <field name="start_datetime" string="Time"/>
                 <field name="mode"/>
-                <field name="interviewer_id"/>
+                <field name="interviewer_display_name" string="Interviewer"/>
                 <field name="capacity"/>
                 <field name="booked_count"/>
                 <field name="available_count"/>

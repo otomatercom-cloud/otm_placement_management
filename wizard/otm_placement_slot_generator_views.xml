@@ -7,18 +7,27 @@
         <field name="arch" type="xml">
             <form string="Generate Interview Slots">
                 <group>
+                    <field name="generation_mode" widget="radio"/>
+                </group>
+                <group>
                     <group string="Date Range">
                         <field name="date_from"/>
-                        <field name="date_to"/>
+                        <field name="date_to"
+                               help="Custom Time Slots mode: each time line below repeats weekly across this range."/>
                     </group>
-                    <group string="Per-Day Schedule">
+                    <group string="Per-Day Schedule" invisible="generation_mode != 'uniform'">
                         <field name="day_start_time" widget="float_time"/>
                         <field name="slots_per_day"/>
                         <field name="slot_duration"/>
                         <field name="gap_minutes"/>
                     </group>
+                    <group string="Slot Duration" invisible="generation_mode != 'custom'">
+                        <field name="slot_duration"
+                               help="Used only for a time line NOT marked 'One Slot For Whole Window'."/>
+                        <field name="gap_minutes"/>
+                    </group>
                 </group>
-                <group string="Weekdays">
+                <group string="Weekdays" invisible="generation_mode != 'uniform'">
                     <div class="d-flex flex-wrap" style="gap: 16px;" colspan="2">
                         <div class="d-flex align-items-center" style="gap: 4px;">
                             <field name="weekday_mon"/><label for="weekday_mon" string="Mon"/>
@@ -43,11 +52,29 @@
                         </div>
                     </div>
                 </group>
+                <group string="Custom Time Slots" invisible="generation_mode != 'custom'">
+                    <field name="time_line_ids" nolabel="1" colspan="2">
+                        <list editable="bottom">
+                            <field name="weekday"/>
+                            <field name="start_time" widget="float_time"/>
+                            <field name="end_time" widget="float_time"/>
+                            <field name="single_slot"/>
+                            <field name="interviewer_id" optional="show"/>
+                            <field name="external_interviewer_name" optional="show"/>
+                            <field name="external_interviewer_contact" optional="hide"/>
+                        </list>
+                    </field>
+                </group>
                 <group>
                     <group string="Slot Details">
                         <field name="mode"/>
                         <field name="capacity"/>
-                        <field name="interviewer_id"/>
+                        <field name="interviewer_id"
+                               string="Default Interviewer"/>
+                        <field name="external_interviewer_name"
+                               string="Default External Interviewer"/>
+                        <field name="external_interviewer_contact"
+                               invisible="not external_interviewer_name"/>
                     </group>
                     <group string="Location" invisible="mode != 'online'">
                         <field name="meeting_platform"/>

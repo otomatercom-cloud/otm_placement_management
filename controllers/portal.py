@@ -58,7 +58,7 @@ class OtmPlacementPortalController(CustomerPortal):
 
     @http.route("/my-placement/interview/request-reattempt", type="http",
                 methods=["POST"], auth="user", website=True, csrf=True)
-    def my_placement_request_reattempt(self, reason=None, **kwargs):
+    def my_placement_request_reattempt(self, reason=None, new_slot_id=None, **kwargs):
         candidate = self._get_candidate()
         if candidate:
             last_completed = candidate.mock_interview_ids.filtered(
@@ -69,11 +69,15 @@ class OtmPlacementPortalController(CustomerPortal):
                 or candidate._get_pending_reattempt_approval()
             )
             if last_completed and not already_pending:
-                request.env["otm.placement.reschedule.request"].sudo().create({
+                vals = {
                     "interview_id": last_completed.id,
                     "request_type": "reattempt",
                     "reason": reason or "",
-                })
+                }
+                slot_id = int(new_slot_id) if str(new_slot_id or "").isdigit() else False
+                if slot_id:
+                    vals["new_slot_id"] = slot_id
+                request.env["otm.placement.reschedule.request"].sudo().create(vals)
         return request.redirect("/my-placement/interview")
 
     @http.route("/my-placement/interview/cancel", type="http", methods=["POST"],

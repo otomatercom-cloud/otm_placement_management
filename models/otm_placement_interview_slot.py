@@ -21,6 +21,20 @@ class OtmPlacementInterviewSlot(models.Model):
         default="online",
     )
     interviewer_id = fields.Many2one("res.users", string="Interviewer")
+    external_interviewer_name = fields.Char(
+        string="External Interviewer",
+        help="Name of a guest/external interviewer who isn't an Odoo user "
+             "here. Leave Interviewer blank when using this.",
+    )
+    external_interviewer_contact = fields.Char(
+        string="External Interviewer Contact",
+        help="Phone or email for the external interviewer.",
+    )
+    interviewer_display_name = fields.Char(
+        string="Interviewer Shown", compute="_compute_interviewer_display_name", store=True,
+        help="Interviewer name shown to candidates and in list views: the "
+             "internal Interviewer if set, otherwise the External Interviewer.",
+    )
 
     capacity = fields.Integer(default=1, required=True)
     booked_count = fields.Integer(default=0, readonly=True, copy=False)
@@ -83,6 +97,13 @@ class OtmPlacementInterviewSlot(models.Model):
             else:
                 slot.name = "New Slot"
 
+    @api.depends("interviewer_id", "external_interviewer_name")
+    def _compute_interviewer_display_name(self):
+        for slot in self:
+            slot.interviewer_display_name = (
+                slot.interviewer_id.name or slot.external_interviewer_name or ""
+            )
+
     @api.depends("capacity", "booked_count")
     def _compute_available_count(self):
         for slot in self:
@@ -111,5 +132,5 @@ class OtmPlacementInterviewSlot(models.Model):
             "mode": self.mode,
             "available": self.slot_status == "available",
             "venue": self.venue if self.mode == "offline" else False,
-            "interviewer": self.interviewer_id.name or "",
+            "interviewer": self.interviewer_display_name or "",
         }

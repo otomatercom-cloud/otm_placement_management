@@ -163,11 +163,8 @@
                         </t>
                         <t t-elif="progress and progress['code'] == 'completed'">
                             <p>Your mock interview is completed.</p>
-                            <p class="text-muted">Want to try again? Request permission for a re-attempt and our placement team will review it.</p>
-                            <form action="/my-placement/interview/request-reattempt" method="post" class="d-inline">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                <button type="submit" class="btn otm-btn-primary">Request Re-attempt</button>
-                            </form>
+                            <p class="text-muted">Want to try again? Pick your preferred slot and our placement team will review and confirm it.</p>
+                            <a href="/placement/book-interview" class="btn otm-btn-primary">Pick a New Slot</a>
                         </t>
                         <t t-else="">
                             <p>You have no upcoming mock interview scheduled.</p>

@@ -310,7 +310,10 @@ class OtmPlacementMainController(http.Controller):
 
     # ------------------------------------------------------------------
     # Request permission for a mock-interview re-attempt (public, token-
-    # verified - the candidate is not portal-logged-in on this flow).
+    # verified - the candidate is not portal-logged-in on this flow). The
+    # candidate picks their preferred slot as part of the request itself
+    # (same slot-picker UI as booking); the placement manager then just
+    # approves or rejects that slot - approving books it immediately.
     # ------------------------------------------------------------------
     @http.route("/placement/book-interview/request-reattempt", type="http",
                 methods=["POST"], auth="public", website=True, csrf=False)
@@ -328,6 +331,13 @@ class OtmPlacementMainController(http.Controller):
         if not candidate.exists() or not token or candidate.access_token != token:
             return _json_response({"ok": False, "error": "Invalid session."}, 403)
 
+        slot_id = _to_int(data.get("slot_id"))
+        slot = request.env["otm.placement.interview.slot"].sudo().browse(slot_id) if slot_id else None
+        if slot_id and not (slot and slot.exists()):
+            return _json_response(
+                {"ok": False, "error": "That slot is no longer available. Please pick another."}, 404
+            )
+
         last_completed = candidate.mock_interview_ids.filtered(
             lambda i: i.status == "completed"
         ).sorted("scheduled_start", reverse=True)[:1]
@@ -335,12 +345,17 @@ class OtmPlacementMainController(http.Controller):
             candidate._get_requested_reattempt()
             or candidate._get_pending_reattempt_approval()
         )
-        if last_completed and not already_pending:
-            request.env["otm.placement.reschedule.request"].sudo().create({
-                "interview_id": last_completed.id,
-                "request_type": "reattempt",
-                "reason": (data.get("reason") or "").strip(),
-            })
-            request.env.cr.commit()
+        if not last_completed or already_pending:
+            return _json_response({"ok": True})
+
+        vals = {
+            "interview_id": last_completed.id,
+            "request_type": "reattempt",
+            "reason": (data.get("reason") or "").strip(),
+        }
+        if slot:
+            vals["new_slot_id"] = slot.id
+        request.env["otm.placement.reschedule.request"].sudo().create(vals)
+        request.env.cr.commit()
 
         return _json_response({"ok": True})

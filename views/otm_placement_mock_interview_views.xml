@@ -26,6 +26,8 @@
                             <field name="slot_id"/>
                             <field name="mode"/>
                             <field name="interviewer_id"/>
+                            <field name="external_interviewer_name"/>
+                            <field name="external_interviewer_contact" invisible="not external_interviewer_name"/>
                         </group>
                         <group>
                             <field name="scheduled_start"/>
@@ -61,7 +63,7 @@
                 <field name="candidate_id"/>
                 <field name="scheduled_start"/>
                 <field name="mode"/>
-                <field name="interviewer_id"/>
+                <field name="interviewer_display_name" string="Interviewer"/>
                 <field name="status" widget="badge"/>
                 <field name="result"/>
             </list>

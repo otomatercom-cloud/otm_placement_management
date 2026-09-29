@@ -22,6 +22,13 @@ class OtmPlacementMockInterview(models.Model):
         [("online", "Online"), ("offline", "Offline")], required=True, tracking=True
     )
     interviewer_id = fields.Many2one("res.users", string="Interviewer", tracking=True)
+    external_interviewer_name = fields.Char(string="External Interviewer", tracking=True)
+    external_interviewer_contact = fields.Char(string="External Interviewer Contact")
+    interviewer_display_name = fields.Char(
+        string="Interviewer Shown", compute="_compute_interviewer_display_name", store=True,
+        help="Interviewer name shown to candidates and in list views: the "
+             "internal Interviewer if set, otherwise the External Interviewer.",
+    )
     scheduled_start = fields.Datetime(string="Scheduled Start", tracking=True)
     scheduled_end = fields.Datetime(string="Scheduled End")
     meeting_platform = fields.Selection(
@@ -61,6 +68,13 @@ class OtmPlacementMockInterview(models.Model):
         tracking=True,
     )
     reminder_sent = fields.Boolean(default=False, copy=False)
+
+    @api.depends("interviewer_id", "external_interviewer_name")
+    def _compute_interviewer_display_name(self):
+        for interview in self:
+            interview.interviewer_display_name = (
+                interview.interviewer_id.name or interview.external_interviewer_name or ""
+            )
 
     @api.model
     def book_slot(self, candidate, slot, bypass_active_check=False):
@@ -151,6 +165,8 @@ class OtmPlacementMockInterview(models.Model):
             "slot_id": slot.id,
             "mode": slot.mode,
             "interviewer_id": slot.interviewer_id.id,
+            "external_interviewer_name": slot.external_interviewer_name or False,
+            "external_interviewer_contact": slot.external_interviewer_contact or False,
             "scheduled_start": slot.start_datetime,
             "scheduled_end": slot.end_datetime,
             "meeting_platform": slot.meeting_platform,
