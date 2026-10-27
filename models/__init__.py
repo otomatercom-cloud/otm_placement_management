@@ -4,6 +4,7 @@ from . import otm_placement_candidate
 from . import otm_placement_interview_slot
 from . import otm_placement_mock_interview
 from . import otm_placement_record
+from . import otm_placement_job_opening
 from . import otm_placement_reschedule_request
 from . import otm_placement_old_erp_settings
 from . import otm_placement_old_erp_client

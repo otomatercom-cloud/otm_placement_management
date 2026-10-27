@@ -31,6 +31,12 @@
                     <button name="action_set_stage" type="object" string="Cancel"
                             class="btn-secondary" context="{'target_stage': 'cancelled'}"
                             invisible="stage in ('placement', 'not_interested', 'cancelled')"/>
+                    <button name="action_approve_job_access" type="object" string="Approve for Jobs"
+                            class="btn-secondary" invisible="job_approved"
+                            groups="otm_placement_management.group_placement_manager"/>
+                    <button name="action_revoke_job_access" type="object" string="Revoke Job Access"
+                            class="btn-secondary" invisible="not job_approved"
+                            groups="otm_placement_management.group_placement_manager"/>
                     <field name="stage" widget="statusbar"
                            statusbar_visible="new,reviewed,contacted,interview_scheduled,interview_completed,follow_up,placement"/>
                 </header>
@@ -63,6 +69,9 @@
                             <field name="program_id"/>
                             <field name="admission_year"/>
                             <field name="qualification_status"/>
+                            <field name="job_approved" readonly="1"/>
+                            <field name="job_approved_date" readonly="1" invisible="not job_approved"/>
+                            <field name="job_approved_by_id" readonly="1" invisible="not job_approved"/>
                         </group>
                     </group>
                     <notebook>
@@ -143,6 +152,7 @@
                 <field name="qualification_status"/>
                 <field name="employment_status"/>
                 <field name="interview_preference"/>
+                <field name="job_approved" optional="show"/>
                 <field name="stage" widget="badge"
                        decoration-success="stage == 'placement'"
                        decoration-info="stage == 'interview_scheduled'"
@@ -195,6 +205,9 @@
                 <filter name="filter_offline" string="Offline" domain="[('interview_preference', '=', 'offline')]"/>
                 <separator/>
                 <filter name="filter_my" string="My Candidates" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="filter_job_approved" string="Approved for Jobs" domain="[('job_approved', '=', True)]"/>
+                <filter name="filter_job_not_approved" string="Not Approved for Jobs" domain="[('job_approved', '=', False)]"/>
                 <separator/>
                 <group>
                     <filter name="group_program" string="Program" context="{'group_by': 'program_id'}"/>

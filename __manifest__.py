@@ -33,6 +33,7 @@ Placement & Mock Interview Management (Otomater)
         "views/otm_placement_mock_interview_views.xml",
         "views/otm_placement_reschedule_request_views.xml",
         "views/otm_placement_record_views.xml",
+        "views/otm_placement_job_views.xml",
         "views/otm_placement_dashboard_views.xml",
         "views/otm_placement_menus.xml",
         "views/otm_placement_portal_templates.xml",

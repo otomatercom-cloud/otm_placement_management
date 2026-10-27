@@ -25,6 +25,12 @@
     <menuitem id="menu_otm_placement_record" name="Placement Records"
               parent="menu_otm_placement_root" action="action_otm_placement_record" sequence="60"/>
 
+    <menuitem id="menu_otm_placement_job_opening" name="Job Openings"
+              parent="menu_otm_placement_root" action="action_otm_placement_job_opening" sequence="62"/>
+
+    <menuitem id="menu_otm_placement_job_application" name="Job Applications"
+              parent="menu_otm_placement_root" action="action_otm_placement_job_application" sequence="64"/>
+
     <menuitem id="menu_otm_placement_reporting" name="Reporting"
               parent="menu_otm_placement_root" sequence="70"
               groups="otm_placement_management.group_placement_manager"/>

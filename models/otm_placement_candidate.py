@@ -93,6 +93,15 @@ class OtmPlacementCandidate(models.Model):
         help="Linked when a portal account is created for this candidate.",
     )
     active = fields.Boolean(default=True)
+    job_approved = fields.Boolean(
+        string="Approved for Jobs", tracking=True, copy=False,
+        help="Only approved candidates can see and apply to published job "
+             "openings (portal / Next.js candidate page).",
+    )
+    job_approved_date = fields.Datetime(string="Job Approval Date", readonly=True, copy=False)
+    job_approved_by_id = fields.Many2one(
+        "res.users", string="Approved By", readonly=True, copy=False
+    )
     registration_date = fields.Datetime(default=fields.Datetime.now, tracking=True)
     access_token = fields.Char(
         string="Access Token", copy=False, default=lambda self: str(uuid.uuid4())
@@ -149,6 +158,22 @@ class OtmPlacementCandidate(models.Model):
         current_year = date.today().year
         years = range(current_year - 15, current_year + 2)
         return [(str(y), str(y)) for y in reversed(list(years))]
+
+    def action_approve_job_access(self):
+        self.write({
+            "job_approved": True,
+            "job_approved_date": fields.Datetime.now(),
+            "job_approved_by_id": self.env.user.id,
+        })
+        return True
+
+    def action_revoke_job_access(self):
+        self.write({
+            "job_approved": False,
+            "job_approved_date": False,
+            "job_approved_by_id": False,
+        })
+        return True
 
     def _compute_mock_interview_count(self):
         for candidate in self:

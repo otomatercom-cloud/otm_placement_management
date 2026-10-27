@@ -323,6 +323,7 @@ class OtmPlacementBffController(http.Controller):
                 "name": candidate.name,
                 "program": candidate.program_id.name,
                 "stage": candidate.stage,
+                "job_approved": candidate.job_approved,
             },
             "status": progress["code"],
             "status_label": progress["label"],
@@ -376,3 +377,94 @@ class OtmPlacementBffController(http.Controller):
         request.env["otm.placement.reschedule.request"].sudo().create(vals)
         request.env.cr.commit()
         return _json_response({"ok": True})
+
+    # ------------------------------------------------------------------
+    # Job openings - only candidates approved for jobs may see/apply
+    # ------------------------------------------------------------------
+    @http.route("/api/placement/jobs", type="http", methods=["GET"],
+                auth="public", csrf=False)
+    def api_jobs(self, token=None, **kwargs):
+        if not _check_secret():
+            return self._unauthorized()
+        if not token:
+            return _json_response({"ok": False, "error": "Missing token."}, 400)
+
+        candidate = request.env["otm.placement.candidate"].sudo().search(
+            [("access_token", "=", token)], limit=1
+        )
+        if not candidate:
+            return _json_response({"ok": False, "error": "Not found."}, 404)
+
+        base = {
+            "ok": True,
+            "candidate": {"id": candidate.id, "name": candidate.name,
+                          "program": candidate.program_id.name},
+        }
+        if not candidate.job_approved:
+            return _json_response({**base, "approved": False, "jobs": []})
+
+        Job = request.env["otm.placement.job.opening"].sudo()
+        jobs = Job.search(Job._open_jobs_domain(candidate),
+                          order="published_date desc, id desc")
+        applications = request.env["otm.placement.job.application"].sudo().search([
+            ("candidate_id", "=", candidate.id), ("job_id", "in", jobs.ids),
+        ])
+        state_by_job = {a.job_id.id: a.state for a in applications}
+        return _json_response({
+            **base,
+            "approved": True,
+            "jobs": [j._public_data(state_by_job.get(j.id)) for j in jobs],
+        })
+
+    @http.route("/api/placement/jobs/apply", type="http", methods=["POST"],
+                auth="public", csrf=False)
+    def api_jobs_apply(self, **kwargs):
+        if not _check_secret():
+            return self._unauthorized()
+        try:
+            data = json.loads(request.httprequest.get_data())
+        except ValueError:
+            return _json_response({"ok": False, "error": "Invalid request."}, 400)
+
+        candidate_id = _to_int(data.get("candidate_id"))
+        job_id = _to_int(data.get("job_id"))
+        token = data.get("token")
+        if not candidate_id or not job_id or not token:
+            return _json_response({"ok": False, "error": "Missing application details."}, 400)
+
+        candidate = request.env["otm.placement.candidate"].sudo().browse(candidate_id)
+        if not candidate.exists() or candidate.access_token != token:
+            return _json_response({"ok": False, "error": "Invalid session."}, 403)
+        if not candidate.job_approved:
+            return _json_response(
+                {"ok": False, "error": "Your profile has not been approved for job openings yet."}, 403
+            )
+
+        Job = request.env["otm.placement.job.opening"].sudo()
+        job = Job.search(Job._open_jobs_domain(candidate) + [("id", "=", job_id)], limit=1)
+        if not job:
+            return _json_response(
+                {"ok": False, "error": "This job opening is no longer available."}, 404
+            )
+
+        Application = request.env["otm.placement.job.application"].sudo()
+        if Application.search_count(
+            [("job_id", "=", job.id), ("candidate_id", "=", candidate.id)]
+        ):
+            # Re-submits (double click / refresh) are an expected, handled case.
+            return _json_response({"ok": True, "already_applied": True})
+
+        try:
+            Application.create({
+                "job_id": job.id,
+                "candidate_id": candidate.id,
+                "note": (data.get("note") or "").strip()[:1000] or False,
+            })
+            request.env.cr.commit()
+        except Exception:
+            request.env.cr.rollback()
+            _logger.exception("BFF job application failed")
+            return _json_response(
+                {"ok": False, "error": "Something went wrong. Please try again."}, 500
+            )
+        return _json_response({"ok": True, "already_applied": False})
