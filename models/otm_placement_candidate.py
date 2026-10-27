@@ -5,7 +5,7 @@ import uuid
 from datetime import date
 
 from odoo import SUPERUSER_ID, _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.modules.registry import Registry
 
 _logger = logging.getLogger(__name__)
@@ -159,8 +159,13 @@ class OtmPlacementCandidate(models.Model):
         years = range(current_year - 15, current_year + 2)
         return [(str(y), str(y)) for y in reversed(list(years))]
 
+    def _check_job_access_manager(self):
+        if not self.env.user.has_group("otm_placement_management.group_placement_manager"):
+            raise AccessError(_("Only Placement Managers can change job access."))
+
     def action_approve_job_access(self):
-        self.write({
+        self._check_job_access_manager()
+        self.sudo().write({
             "job_approved": True,
             "job_approved_date": fields.Datetime.now(),
             "job_approved_by_id": self.env.user.id,
@@ -168,7 +173,8 @@ class OtmPlacementCandidate(models.Model):
         return True
 
     def action_revoke_job_access(self):
-        self.write({
+        self._check_job_access_manager()
+        self.sudo().write({
             "job_approved": False,
             "job_approved_date": False,
             "job_approved_by_id": False,
